@@ -1,0 +1,25 @@
+{
+    "name": "youkchan/openassets-php",
+    "description": "Openassets Library For PHP",
+    "keywords": ["openassets"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "youkchan",
+            "email": "none@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^6.5"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+      "psr-4": {
+        "youkchan\\OpenassetsPHP\\": "src/OpenassetsPHP"
+      }
+    },
+    "require": {
+        "guzzlehttp/guzzle": "^6.3"
+    }
+}
