@@ -4,7 +4,14 @@ use youkchan\OpenassetsPHP\Openassets;
 
 class OpenassetsTest extends TestCase
 {
-    public function testGetApi(){
+
+    private $openassets;
+
+    public function setUp(){
+        $this->openassets = new Openassets(); 
+    }
+ 
+/*    public function testGetApi(){
         $openassets = new Openassets();
         $api = $openassets->getApi();
         $this->assertSame($api->get("network"),'mainnet');
@@ -21,5 +28,16 @@ class OpenassetsTest extends TestCase
         $this->assertSame($api->get("rpc_schema"),'https');
         $this->assertSame($api->get("rpc_timeout"),60);
         $this->assertSame($api->get("rpc_open_timeout"),60);
+    }
+*/
+    public function test_list_unspent(){
+        $result = $this->openassets->list_unspent();
+        var_dump($result);
+    }
+
+    public function test_get_unspent_outputs(){
+        $address_list = ['MCfN6CUST7TtoDhGNhocfMstStjUr8SFNT'];
+        $result = $this->openassets->get_unspent_outputs($address_list);
+        $this->assertSame($result,'OK');
     }
 }
