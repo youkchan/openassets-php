@@ -2,22 +2,25 @@
 namespace youkchan\OpenassetsPHP;
 use youkchan\OpenassetsPHP\Api;
 use youkchan\OpenassetsPHP\Util;
-use BitWasp\Bitcoin\Address\AddressFactory;
-use BitWasp\Bitcoin\Bitcoin;
-use BitWasp\Bitcoin\Network\NetworkFactory;
+use youkchan\OpenassetsPHP\Network;
+use youkchan\OpenassetsPHP\Provider;
 use Exception;
 
 class Openassets
 {
-    private $api;
+//    private $api;
     private $network;
+    private $default_network = "Monacoin";
 
-    public function __construct(){
-        $this->api = new Api();
-        Bitcoin::setNetwork(NetworkFactory::bitcoinTestnet());
-        $this->network = Bitcoin::getNetwork();
+    public function __construct($params = array()){
+        if (empty($params)) {
+            $this->network = new Network();
+        }
+//        $this->api = new Api();
+//        Bitcoin::setNetwork(NetworkFactory::bitcoinTestnet());
+//        $this->network = Bitcoin::getNetwork();
     }
-
+/*
     public function set($key,$value){
         $this->api->set($key,$value);
     }
@@ -28,6 +31,17 @@ class Openassets
 
     public function getApi(){
         return $this->api;
+    }
+*/
+/*
+    public function change_network($network) {
+        $this->network->change_network($network);
+       // Bitcoin::setNetwork(NetworkFactory::$network());
+       // $this->network = Bitcoin::getNetwork();
+    }
+*/
+    public function get_network() {
+        return $this->network;
     }
 
     public function list_unspent($oa_address_list = []) {
@@ -42,15 +56,7 @@ class Openassets
     }
 
     public function get_unspent_outputs($address_list = []) {
-        //TODO bitcoin-rubyのvalid_addressに対応していると思われるが要検証
-        //TODO 最新バージョンだと大幅に変更されている.現状デフォルトでインストールされる安定バージョンを利用
-        $address_factory = new AddressFactory();
-        foreach ($address_list as $address) {
-            if (!$address_factory->isValidAddress($address,$this->network)) {
-                throw new Exception($address . "is invalid bitcoin address");
-            }
-        }
-        return "OK";
-
+        Util::validate_addresses($address_list, $this->network->get_bclib_network());
+        $unspent_list = Provider::list_unspent($address_list, $this->network);
     }
 }

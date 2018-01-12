@@ -19,8 +19,14 @@
         "youkchan\\OpenassetsPHP\\": "src/OpenassetsPHP"
       }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/youkchan/bitcoin-php.git"
+        }
+    ],
     "require": {
         "guzzlehttp/guzzle": "^6.3",
-        "bitwasp/bitcoin": "v0.0.34.1"
+        "bitwasp/bitcoin": "dev-private"
     }
 }

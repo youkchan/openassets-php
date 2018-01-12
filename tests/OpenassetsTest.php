@@ -32,12 +32,16 @@ class OpenassetsTest extends TestCase
 */
     public function test_list_unspent(){
         $result = $this->openassets->list_unspent();
-        var_dump($result);
+        //var_dump($result);
     }
 
     public function test_get_unspent_outputs(){
-        $address_list = ['MCfN6CUST7TtoDhGNhocfMstStjUr8SFNT'];
-        $result = $this->openassets->get_unspent_outputs($address_list);
-        $this->assertSame($result,'OK');
+        //$address_list = ['MCfN6CUST7TtoDhGNhocfMstStjUr8SFNT'];
+    //    $address_list = ['mzi2Dbx1Q9gdFHhJga2rEhyMaUT5QuMrk3'];
+        //$address_list = ['3EktnHQD7RiAE6uzMj2ZifT9YgRrkSgzQX'];
+    //    $result = $this->openassets->get_unspent_outputs($address_list);
+    //    $this->assertSame($result,'OK');
     }
+
+    
 }
