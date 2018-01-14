@@ -11,7 +11,9 @@
         }
     ],
     "require-dev": {
-        "phpunit/phpunit": "^6.5"
+        "phpunit/phpunit": "^6.5",
+        "phpmd/phpmd" : "*"
+
     },
     "minimum-stability": "stable",
     "autoload": {
@@ -27,6 +29,7 @@
     ],
     "require": {
         "guzzlehttp/guzzle": "^6.3",
-        "bitwasp/bitcoin": "dev-private"
+        "bitwasp/bitcoin": "dev-private",
+        "thefox/utilities": "^1.11"
     }
 }

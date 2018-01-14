@@ -9,6 +9,8 @@ class Provider
 
 /*
 curl --data-binary '{"jsonrpc":"1.0","id":"jsonrpc","method":"getinfo","params":[]}' -H 'content-type:json;' http://rpc:rpc@localhost:19402
+
+ea34e5e94bd14cfb0aa85de2d94730c22e322b75a85a40146fdbf49bc886ec4c
 */
 
     private $network;
@@ -21,11 +23,30 @@ curl --data-binary '{"jsonrpc":"1.0","id":"jsonrpc","method":"getinfo","params":
         $params = array(
             $this->network->get_min_confirmation(),
             $this->network->get_max_confirmation(),
+            $addresses,
         );
-        //$result = self::request("listunspent", json_encode($params));
-        $result = self::request("listunspent", $params);
-        //return $result;
+        $result = array();
+        try {
+            $result = self::request("listunspent", $params);
+        } catch (Exception $e) {
+            //No Execution
+        }
+        return $result;
 
+    }
+
+    public function get_transaction($transaction_hash, $verbose = 0){
+        $params = array(
+            $transaction_hash,
+            $verbose,
+        );
+        $result = array();
+        try {
+            $result = self::request("getrawtransaction", $params);
+        } catch (Exception $e) {
+            //No Execution
+        }
+        return $result;
     }
 
     protected function request($command, $params) {
@@ -46,9 +67,10 @@ curl --data-binary '{"jsonrpc":"1.0","id":"jsonrpc","method":"getinfo","params":
                           ]
                       ]);
         }catch (Exception $e) {
+            throw new Exception($e->getMessage());
         } 
-//$result = json_decode($result->getBody());
-//var_dump($result);
+        $result = json_decode($response->getBody());
+        return $result->result;
    
     }
 /*

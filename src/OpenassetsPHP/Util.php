@@ -4,6 +4,7 @@ use BitWasp\Bitcoin\Base58;
 use BitWasp\Buffertools\Buffer;
 use BitWasp\Buffertools\Buffertools;
 use BitWasp\Bitcoin\Address\AddressCreator;
+use TheFox\Utilities\Leb128;
 use Exception;
 
 class Util
@@ -31,4 +32,27 @@ class Util
             }
         }
     }
+
+    public static function decode_leb128($leb128)
+    {
+        $base = null;
+        $bytes = str_split($leb128, 2);
+        $num_items = count($bytes);
+        $i = 0;
+        foreach($bytes as $byte) {
+            if (++$i !== $num_items) {
+                $base .= Buffer::hex($byte)->getInt() >= 128 ? $byte : $byte.'|';
+            } else {
+                $base .= $byte;
+            }
+        };
+        $data = explode('|', $base);
+        $x = 0;
+        foreach ($data as $str) {
+            $len = Leb128::udecode(pack('H*', $str), $x);
+            $res[] = $x;
+        }
+        return $res;
+    }
+
 }

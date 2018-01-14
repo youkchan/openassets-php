@@ -11,7 +11,7 @@ class Network
 
     private $bclib_network; //Bitcoin Library
 
-    private $default_network_name = "monacoinTestnet";
+    private $default_network_name = "litecoinTestnet";
 
     private $network;
 
