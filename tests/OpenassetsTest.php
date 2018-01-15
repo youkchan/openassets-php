@@ -36,7 +36,8 @@ class OpenassetsTest extends TestCase
     }
 
     public function test_get_unspent_outputs(){
-        $address = ['mzi2Dbx1Q9gdFHhJga2rEhyMaUT5QuMrk3'];
+        //$address = ['mzi2Dbx1Q9gdFHhJga2rEhyMaUT5QuMrk3'];
+        $address = ['mx7DJCfEW3BXyNatnpXio5VLbqjspFgqdd'];
         $result = $this->openassets->get_unspent_outputs($address);
         //$address_list = ['MCfN6CUST7TtoDhGNhocfMstStjUr8SFNT'];
     //    $address_list = ['mzi2Dbx1Q9gdFHhJga2rEhyMaUT5QuMrk3'];
@@ -52,7 +53,9 @@ class OpenassetsTest extends TestCase
     }
 
     public function test_get_output() {
-        $transaction_id = "da3851496a0cdf5447d53d1a735085532be59b45aadc8961ed464853c283b61c";
+        //$transaction_id = "da3851496a0cdf5447d53d1a735085532be59b45aadc8961ed464853c283b61c";
+        $transaction_id = "e9630ef44a6d02267972def224ebb2f1070ebf0b3d58d92c64d03b078308594b";
+
         $this->openassets->get_output($transaction_id,0);
     }
 

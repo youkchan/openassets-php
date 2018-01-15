@@ -2,12 +2,14 @@
 use PHPUnit\Framework\TestCase;
 use youkchan\OpenassetsPHP\Util;
 use youkchan\OpenassetsPHP\Openassets;
+use youkchan\OpenassetsPHP\Network;
 
 class UtilTest extends TestCase
 {
 
     public function setUp(){
         $this->openassets = new Openassets(); 
+        $this->network = new Network(); 
     }
  
     public function test_convert_oa_address_to_address(){
@@ -16,12 +18,19 @@ class UtilTest extends TestCase
         $this->assertSame($result,'MCfN6CUST7TtoDhGNhocfMstStjUr8SFNT');
     }
 
+    public function test_convert_address_to_oa_address (){
+        $address = 'n2erVt7zenHCtQebxNWK5At66ZBvVXVg3k';
+        $address_comp = 'bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK';
+        $result = Util::convert_address_to_oa_address($address);
+        $this->assertSame($result,$address_comp);
+    }
+
     public function test_validate_addresses() {
         //$address_list = ['MCfN6CUST7TtoDhGNhocfMstStjUr8SFNT'];
         $address_list = ['mzi2Dbx1Q9gdFHhJga2rEhyMaUT5QuMrk3'];
         //$address_list = ['3EktnHQD7RiAE6uzMj2ZifT9YgRrkSgzQX'];
         try {
-            Util::validate_addresses($address_list , $this->openassets->get_network());
+            Util::validate_addresses($address_list , $this->network->get_bclib_network());
         } catch(Exception $e) {
             $this->fail($e->getMessage());
         }

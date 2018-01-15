@@ -1,9 +1,9 @@
 <?php
 namespace youkchan\OpenassetsPHP\Protocol;
-use BitWasp\Bitcoin\Bitcoin;
-use BitWasp\Bitcoin\Network\NetworkFactory;
 use BitWasp\Buffertools\Buffer;
+use BitWasp\Bitcoin\Script\Opcodes;
 use youkchan\OpenassetsPHP\Util;
+use BitWasp\Bitcoin\Script\ScriptFactory;
 use Exception;
 
 
@@ -11,6 +11,7 @@ class MarkerOutput
 {
     const OAP_MARKER = "4f41";
     const VERSION = "0100";
+    const MAX_ASSET_QUANTITY = 2 ** 63 -1;
 
     protected $asset_quantities;
     protected $metadata;
@@ -19,6 +20,12 @@ class MarkerOutput
     {
         $this->asset_quantities = $asset_quantities;
         $this->metadata = $metadata;
+    }
+
+
+    public function get_asset_quantities()
+    {
+        return $this->asset_quantities;
     }
 
     public static function deserialize_payload($payload)
@@ -55,6 +62,19 @@ class MarkerOutput
             return [$buffer->slice(1,4)->getInt(), $buffer->slice(5)->getHex()];
         default:
             return [$buffer->slice(0,1)->getInt(), $buffer->slice(1)->getHex()];
+        }
+    }
+
+    //TODO Scriptで受ければ良い気がする
+    public static function parse_script(Buffer $buf)
+    {
+        $script = ScriptFactory::create($buf)->getScript();
+        $parse = $script->getScriptParser()->decode();
+        if ($parse[0]->getOp() == Opcodes::OP_RETURN) {
+            $hex = $parse[1]->getData()->getHex();
+            return self::is_valid_payload($hex) ? $hex : null;
+        } else {
+            return null;
         }
     }
 

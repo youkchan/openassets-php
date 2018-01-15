@@ -4,7 +4,13 @@ use youkchan\OpenassetsPHP\Api;
 use youkchan\OpenassetsPHP\Util;
 use youkchan\OpenassetsPHP\Network;
 use youkchan\OpenassetsPHP\Provider;
+use youkchan\OpenassetsPHP\Protocol\MarkerOutput;
+use youkchan\OpenassetsPHP\Protocol\OutputType;
+use youkchan\OpenassetsPHP\Protocol\OaTransactionOutput;
+use BitWasp\Buffertools\Buffer;
 use BitWasp\Bitcoin\Transaction\TransactionFactory;
+use BitWasp\Bitcoin\Script\Script;
+//use BitWasp\Bitcoin\Crypto\Hash;
 use Exception;
 
 class Openassets
@@ -17,30 +23,8 @@ class Openassets
             $this->network = new Network();
             $this->provider = new Provider($this->network);
         }
-//        $this->api = new Api();
-//        Bitcoin::setNetwork(NetworkFactory::bitcoinTestnet());
-//        $this->network = Bitcoin::getNetwork();
-    }
-/*
-    public function set($key,$value){
-        $this->api->set($key,$value);
     }
 
-    public function get($key){
-        return $this->api->get($key);
-    }
-
-    public function getApi(){
-        return $this->api;
-    }
-*/
-/*
-    public function change_network($network) {
-        $this->network->change_network($network);
-       // Bitcoin::setNetwork(NetworkFactory::$network());
-       // $this->network = Bitcoin::getNetwork();
-    }
-*/
     public function get_network() {
         return $this->network;
     }
@@ -69,10 +53,46 @@ class Openassets
         $decode_transaction = self::load_transaction($txid);
         $transaction = TransactionFactory::fromHex($decode_transaction);
         $colored_outputs = self::get_color_outputs_from_tx($transaction);
-var_dump($transaction);
+        return $colored_outputs[$vout]; //TODO?
     }
 
     public function get_color_outputs_from_tx($transaction) {
+        if(!$transaction->isCoinbase()) {
+            foreach ($transaction->getOutputs() as $output_key => $output) {
+        //          var_dump($output->getScript()->getBuffer());
+                  //var_dump(Buffer::hex($output->hex));
+                $marker_output_payload = MarkerOutput::parse_script($output->getScript()->getBuffer());
+                if (!is_null($marker_output_payload)) {
+                    $marker_output = MarkerOutput::deserialize_payload($marker_output_payload);
+                    $previous_outputs = array();
+                    foreach ($transaction->getInputs() as $previous_input) {
+                        $previous_outputs[] = self::get_output($previous_input->getOutpoint()->getTxId()->getHex(),$previous_input->getOutpoint()->getVout());
+                    }
+                    $asset_ids = self::compute_asset_ids($previous_outputs, $output_key, $transaction, $marker_output->get_asset_quantities());
+                    if (!is_null($assets_ids)) {
+                        return $assets_ids;
+                    }
+//var_dump($previous_outputs);
+                }
+                //var_dump($output->getScript());
+            }
+        }
+ 
+        $colored_outputs = array();
+        foreach ($transaction->getOutputs() as $output) {
+            $colored_outputs[] = new OaTransactionOutput($output->getValue(), $output->getScript(), null, 0 ,OutputType::UNCOLORED);
+        }
+        return $colored_outputs;
+    }
+
+    public function compute_asset_ids ($previous_outputs, $marker_output_index, $transaction, $asset_quantities) {
+        $outputs = $transaction->getOutputs();
+        if ($asset_quantities > count($outputs) - 1 || count($previous_outputs) == 0) {
+            return null;
+        }
+        $result = array();
+        $marker_output = outputs[$marker_output_index]
+
     }
  
     public function load_transaction($txid) {

@@ -9,6 +9,9 @@ use Exception;
 
 class Util
 {
+
+    const OA_NAMESPACE = 19;
+
     public static function convert_oa_address_to_address($oa_address) {
         $decode_address = Base58::decode($oa_address);
         $btc_address = $decode_address->slice(1, -4);
@@ -16,7 +19,16 @@ class Util
         return Base58::encode(Buffertools::concat($btc_address , $btc_checksum));
     }
 
-    public static function convert_address_to_oa_address($oa_address_list) {
+    public static function convert_address_to_oa_address($btc_address) {
+        $decode_address = Base58::decode($btc_address);
+        if ($decode_address->getSize() == 47) {
+            $decode_address = '0'.$decode_address->getHex();
+        } else {
+            $decode_address = $decode_address->getHex();
+        }
+        $named_address = dechex(self::OA_NAMESPACE).substr($decode_address, 0, -8);
+        $oa_checksum = Base58::checksum(Buffer::hex($named_address));
+        return Base58::encode(Buffer::hex($named_address.$oa_checksum->getHex()));
     }
 
     public static function validate_addresses($address_list, $network) {
@@ -29,7 +41,7 @@ class Util
                 $address_creator->fromString($address, $network);
             } catch (Exception $e){
                 throw new Exception($address . " is invalid bitcoin address" );
-            }
+            
         }
     }
 
@@ -55,4 +67,15 @@ class Util
         return $res;
     }
 
+    public static function script_to_asset_id($script) {
+    }
+    
+    public static function hash_to_asset_id($hash) {
+    }
+/*
+    def hash160(hex)
+      bytes = [hex].pack("H*")
+      Digest::RMD160.hexdigest Digest::SHA256.digest(bytes)
+    end
+*/
 }
