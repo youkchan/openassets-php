@@ -15,7 +15,8 @@
         "phpmd/phpmd" : "*"
 
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload": {
       "psr-4": {
         "youkchan\\OpenassetsPHP\\": "src/OpenassetsPHP"
@@ -28,7 +29,7 @@
         }
     ],
     "require": {
-        "bitwasp/bitcoin": "dev-master",
+        "bitwasp/bitcoin": "dev-private ",
         "guzzlehttp/guzzle": "^6.3",
         "thefox/utilities": "^1.11"
     }
