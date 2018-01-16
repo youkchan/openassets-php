@@ -1,4 +1,5 @@
 <?php
+namespace youkchan\OpenassetsPHP\Tests\Protocol;
 use PHPUnit\Framework\TestCase;
 use youkchan\OpenassetsPHP\Protocol\MarkerOutput;
 

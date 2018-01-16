@@ -18,6 +18,7 @@ class AssetDefinition
     public $image_url;
     public $version;
     public $proof_of_authenticity;
+
     public function __construct()
     {
         $this->asset_definition_url = null;
