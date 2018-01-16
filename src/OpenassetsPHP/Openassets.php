@@ -55,12 +55,12 @@ class Openassets
         $transaction = TransactionFactory::fromHex($decode_transaction);
 //var_dump($transaction->getTxId());
         $colored_outputs = self::get_color_outputs_from_tx($transaction);
-        //return $colored_outputs[$vout]; //TODO?
-        return $colored_outputs;
+        return $colored_outputs[$vout]; 
     }
 
     public function get_color_outputs_from_tx($transaction) {
-/*        if(!$transaction->isCoinbase()) {
+//var_dump($transaction->getTxId());
+        if(!$transaction->isCoinbase()) {
             foreach ($transaction->getOutputs() as $output_key => $output) {
         //          var_dump($output->getScript()->getBuffer());
                   //var_dump(Buffer::hex($output->hex));
@@ -74,7 +74,7 @@ class Openassets
                         $previous_outputs[] = self::get_output($previous_input->getOutpoint()->getTxId()->getHex(),$previous_input->getOutpoint()->getVout());
                     }
 //var_dump($previous_outputs);
-       //            $asset_ids = self::compute_asset_ids($previous_outputs, $output_key, $transaction, $marker_output->get_asset_quantities());
+                   $asset_ids = self::compute_asset_ids($previous_outputs, $output_key, $transaction, $marker_output->get_asset_quantities());
         //            if (!is_null($assets_ids)) {
         //                return $assets_ids;
         //            }
@@ -83,7 +83,7 @@ class Openassets
                 //var_dump($output->getScript());
             }
         }
-*/ 
+ 
         $colored_outputs = array();
         foreach ($transaction->getOutputs() as $output) {
             $colored_outputs[] = new OaTransactionOutput($output->getValue(), $output->getScript(), null, 0 ,OutputType::UNCOLORED);
@@ -93,12 +93,23 @@ class Openassets
 
     public function compute_asset_ids ($previous_outputs, $marker_output_index, $transaction, $asset_quantities) {
         $outputs = $transaction->getOutputs();
-        if ($asset_quantities > count($outputs) - 1 || count($previous_outputs) == 0) {
+
+        //Marker output payloadが存在しているので、coinbaseではないし(previous_outputsが存在する)
+        //transactionに含まれているopenassets操作のトランザクションの数以上、アセットの種類(count($asset_quantities))が存在する
+        if (count($asset_quantities) > count($outputs) - 1 || count($previous_outputs) == 0) {
             return null;
         }
         $result = array();
-        $marker_output = outputs[$marker_output_index];
-//script_to_asset_id($previous_outputs[0]
+        $marker_output = $outputs[$marker_output_index];
+        //Maker outputが含むトランザクションの一番最初はasset issueのトランザクション
+        $issuance_asset_id = Util::script_to_asset_id($previous_outputs[0]->get_script(), $this->network);
+        for ($i = 0 ; $i <= $marker_output_index -1 ; $i++) {
+            $value = $outputs[$i]->getValue();
+            $script = $outputs[$i]->getScript();
+
+            if ($i < count($asset_quantities) && $asset_quantities[$i] > 0) {
+            }
+        }
 
     }
  

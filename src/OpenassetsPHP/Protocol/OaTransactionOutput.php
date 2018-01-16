@@ -82,4 +82,9 @@ class OaTransactionOutput
         return $loader->load_definition();
     }
 
+
+    public function get_script()
+    {
+        return $this->script;
+    }
 }

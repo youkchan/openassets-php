@@ -72,7 +72,7 @@ class Util
     }
 
     public static function script_to_asset_id($script, $network) {
-         $hash = Hash::sha256ripe160(Buffer::hex($script));
+         $hash = Hash::sha256ripe160($script->getBuffer());
          return self::hash_to_asset_id($hash, $network);
     }
     
