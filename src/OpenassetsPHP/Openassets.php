@@ -50,14 +50,17 @@ class Openassets
     }
 
     public function get_output($txid, $vout) {
+//var_dump($txid);
         $decode_transaction = self::load_transaction($txid);
         $transaction = TransactionFactory::fromHex($decode_transaction);
+//var_dump($transaction->getTxId());
         $colored_outputs = self::get_color_outputs_from_tx($transaction);
-        return $colored_outputs[$vout]; //TODO?
+        //return $colored_outputs[$vout]; //TODO?
+        return $colored_outputs;
     }
 
     public function get_color_outputs_from_tx($transaction) {
-        if(!$transaction->isCoinbase()) {
+/*        if(!$transaction->isCoinbase()) {
             foreach ($transaction->getOutputs() as $output_key => $output) {
         //          var_dump($output->getScript()->getBuffer());
                   //var_dump(Buffer::hex($output->hex));
@@ -65,19 +68,22 @@ class Openassets
                 if (!is_null($marker_output_payload)) {
                     $marker_output = MarkerOutput::deserialize_payload($marker_output_payload);
                     $previous_outputs = array();
+
                     foreach ($transaction->getInputs() as $previous_input) {
+//var_dump($previous_input);
                         $previous_outputs[] = self::get_output($previous_input->getOutpoint()->getTxId()->getHex(),$previous_input->getOutpoint()->getVout());
                     }
-                    $asset_ids = self::compute_asset_ids($previous_outputs, $output_key, $transaction, $marker_output->get_asset_quantities());
-                    if (!is_null($assets_ids)) {
-                        return $assets_ids;
-                    }
+//var_dump($previous_outputs);
+       //            $asset_ids = self::compute_asset_ids($previous_outputs, $output_key, $transaction, $marker_output->get_asset_quantities());
+        //            if (!is_null($assets_ids)) {
+        //                return $assets_ids;
+        //            }
 //var_dump($previous_outputs);
                 }
                 //var_dump($output->getScript());
             }
         }
- 
+*/ 
         $colored_outputs = array();
         foreach ($transaction->getOutputs() as $output) {
             $colored_outputs[] = new OaTransactionOutput($output->getValue(), $output->getScript(), null, 0 ,OutputType::UNCOLORED);
@@ -91,7 +97,8 @@ class Openassets
             return null;
         }
         $result = array();
-        $marker_output = outputs[$marker_output_index]
+        $marker_output = outputs[$marker_output_index];
+//script_to_asset_id($previous_outputs[0]
 
     }
  

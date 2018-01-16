@@ -62,4 +62,8 @@ class Network
     }
 
 
+    public function get_p2pkh_address_prefix() {
+        return $this->bclib_network->getAddressByte();
+    }
+
 }

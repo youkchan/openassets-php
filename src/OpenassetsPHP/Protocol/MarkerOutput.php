@@ -49,7 +49,7 @@ class MarkerOutput
         $asset_quantities = Util::decode_leb128($list);
         $metaHex = Buffer::hex($payload)->slice(Buffer::hex($list)->getSize() + 1);
         $metadata = empty($metaHex) ? NULL : $metaHex->getBinary();
-        return new MarkerOutput($assetQuantities, $metadata);
+        return new MarkerOutput($asset_quantities, $metadata);
     }
 
     private static function parse_asset_quantity($payload)

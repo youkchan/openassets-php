@@ -5,11 +5,15 @@ use BitWasp\Buffertools\Buffer;
 use BitWasp\Buffertools\Buffertools;
 use BitWasp\Bitcoin\Address\AddressCreator;
 use TheFox\Utilities\Leb128;
+use youkchan\OpenassetsPHP\Network;
+use BitWasp\Bitcoin\Crypto\Hash;
 use Exception;
 
 class Util
 {
 
+    const OA_VERSION_BYTE = 23;
+    const OA_VERSION_BYTE_TESTNET = 115;
     const OA_NAMESPACE = 19;
 
     public static function convert_oa_address_to_address($oa_address) {
@@ -41,7 +45,7 @@ class Util
                 $address_creator->fromString($address, $network);
             } catch (Exception $e){
                 throw new Exception($address . " is invalid bitcoin address" );
-            
+            }    
         }
     }
 
@@ -67,10 +71,24 @@ class Util
         return $res;
     }
 
-    public static function script_to_asset_id($script) {
+    public static function script_to_asset_id($script, $network) {
+         $hash = Hash::sha256ripe160(Buffer::hex($script));
+         return self::hash_to_asset_id($hash, $network);
     }
     
-    public static function hash_to_asset_id($hash) {
+    public static function hash_to_asset_id($hash, $network) {
+        $prefix_buffer = Buffer::hex(strval(dechex(self::oa_version_byte($network))));
+        $hash = Buffertools::concat($prefix_buffer,$hash);
+        $checksum = Base58::checksum($hash);
+        return Base58::encode(Buffertools::concat($hash , $checksum));
+    }
+
+    public static function oa_version_byte($network) {
+        if ($network->get_p2pkh_address_prefix() == "6f" ){
+           return self::OA_VERSION_BYTE_TESTNET;
+        } else {
+           return self::OA_VERSION_BYTE;
+        }
     }
 /*
     def hash160(hex)
