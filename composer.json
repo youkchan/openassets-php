@@ -29,9 +29,8 @@
         }
     ],
     "require": {
-        "bitwasp/bitcoin": "*",
         "guzzlehttp/guzzle": "^6.3",
-        "bitwasp/bitcoin": "dev-private",
+        "bitwasp/bitcoin": "dev-private as dev-master",
         "thefox/utilities": "^1.11"
     }
 }
