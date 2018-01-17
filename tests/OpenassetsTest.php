@@ -31,8 +31,12 @@ class OpenassetsTest extends TestCase
     }
 */
     public function test_list_unspent(){
-        $result = $this->openassets->list_unspent(["bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA"]);
-        var_dump($result);
+        //$result = $this->openassets->list_unspent(["bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA"]);
+        //var_dump($result);
+    }
+
+    public function test_issue_asset() {
+        $result = $this->openassets->issue_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA",100);
     }
 
     public function test_get_unspent_outputs(){

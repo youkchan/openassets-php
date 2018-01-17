@@ -10,6 +10,7 @@ use youkchan\OpenassetsPHP\Protocol\OaTransactionOutput;
 use BitWasp\Buffertools\Buffer;
 use BitWasp\Bitcoin\Transaction\TransactionFactory;
 use BitWasp\Bitcoin\Script\Script;
+use youkchan\OpenassetsPHP\Transaction\TransferParameters;
 //use BitWasp\Bitcoin\Crypto\Hash;
 use Exception;
 
@@ -46,6 +47,17 @@ class Openassets
             $output_result[] = self::get_output($item->txid,$item->vout);
         }
         return $output_result;
+    }
+
+    public function issue_asset($from, $amount, $metadata = null, $to = null, $fee = null, $mode = "broadcast", $output_quantity = 1) {
+   
+        if (is_null($to)) {
+            $to = $from;
+        } 
+        $colored_outputs = self::get_unspent_outputs([Util::convert_oa_address_to_address($from)]);
+        $issue_param = new TransactionParameters($colored_outputs, $to, $amount, $output_quantity);
+
+var_dump($colored_outputs);
     }
 
     public function get_output($txid, $vout) {
@@ -201,6 +213,10 @@ class Openassets
             throw new Exception("txid : " . $txid ." could not be retrieved");
         }
         return $decode_transaction;
+    }
+
+    public function create_transaction_builder() {
+        return new TransactionBuilder($this->network->get_dust_limit());
     }
 /*
     public function parse_issuance_p2sh_pointer($script) {

@@ -41,6 +41,10 @@ class LitecoinTestnet
         return $this->network_data["rpc_timeout"];
     }
 
+    public function get_dust_limit() {
+        return $this->network_data["dust_limit"];
+    }
+
     public function get_server_url() {
         $url = $this->network_data["rpc_schema"] . "://";
         $url .= $this->network_data["rpc_user"] . ":" . $this->network_data["rpc_password"] . "@";

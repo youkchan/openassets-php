@@ -53,6 +53,10 @@ class Network
         return $this->network->get_server_url();
     }
 
+    public function get_dust_limit() {
+        return $this->network->get_dust_limit();
+    }
+
     public function change_network($network) {
         if (!in_array($network, $this->network_list)) {
             throw new Exception($network . " is not supported" );
