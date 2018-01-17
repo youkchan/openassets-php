@@ -41,9 +41,9 @@ class AssetDefinition
     {
         $data = json_decode($json);
         $asset_definition = new AssetDefinition();
-        $asset_definition->asset_ids = $data->asset_ids;
-        $asset_definition->name_short = $data->name_short;
-        $asset_definition->name = $data->name;
+        $asset_definition->asset_ids = isset($data->asset_ids) ? $data->asset_ids : null ;
+        $asset_definition->name_short = isset($data->name_short) ? $data->name_short : null ;
+        $asset_definition->name = isset($data->name) ? $data->name : null ;
         $asset_definition->contract_url = isset($data->contract_url) ? $data->contract_url : null ;
         $asset_definition->issuer = isset($data->issuer) ? $data->issuer : null;
         $asset_definition->description = isset($data->description) ? $data->description: null;
@@ -56,7 +56,7 @@ class AssetDefinition
         $asset_definition->version = isset($data->version) ? $data->version : null;
         return $asset_definition;
     }
-    
+
     public function has_asset_id($asset_id)
     {
         if ($this->asset_ids == null || empty($this->asset_ids)) {

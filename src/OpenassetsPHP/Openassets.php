@@ -35,8 +35,7 @@ class Openassets
             $mona_address_list[] = Util::convert_oa_address_to_address($oa_address);
         }
         $outputs = $this->get_unspent_outputs($mona_address_list);
-        //$result = convert_to_hash($outputs);
-        //return $result;
+        return $outputs;
     }
 
     public function get_unspent_outputs($address_list = []) {
@@ -74,10 +73,11 @@ class Openassets
                         $previous_outputs[] = self::get_output($previous_input->getOutpoint()->getTxId()->getHex(),$previous_input->getOutpoint()->getVout());
                     }
 //var_dump($previous_outputs);
+//var_dump($transaction->getTxId());
                    $asset_ids = self::compute_asset_ids($previous_outputs, $output_key, $transaction, $marker_output->get_asset_quantities());
-        //            if (!is_null($assets_ids)) {
-        //                return $assets_ids;
-        //            }
+                    if (!is_null($asset_ids)) {
+                        return $asset_ids;
+                    }
 //var_dump($previous_outputs);
                 }
                 //var_dump($output->getScript());
@@ -90,7 +90,12 @@ class Openassets
         }
         return $colored_outputs;
     }
-
+    /*
+     * @param transaction         : MainchainのUTXO(以下transactionは全てUTXO)
+     * @param previous_outputs    : marker outputを含むtransactionのinput(previous output)から作成したOaTransactionOutput
+     * @param marker_output_index : transactionのなかのoutputでmarker outputを含むoutputのindex
+     * @param asset_quantities    : marker outputに含まれるアセットの数
+     */
     public function compute_asset_ids ($previous_outputs, $marker_output_index, $transaction, $asset_quantities) {
         $outputs = $transaction->getOutputs();
 
@@ -101,16 +106,93 @@ class Openassets
         }
         $result = array();
         $marker_output = $outputs[$marker_output_index];
-        //Maker outputが含むトランザクションの一番最初はasset issueのトランザクション
+        //Maker outputを含むトランザクション群で一番最初のトランザクションはasset issueのトランザクション
         $issuance_asset_id = Util::script_to_asset_id($previous_outputs[0]->get_script(), $this->network);
+//var_dump($marker_output_index);
+        //marker output indexが1以上の場合それはアセットの発行を示す
+        //issuance
         for ($i = 0 ; $i <= $marker_output_index -1 ; $i++) {
+//var_dump("test");
             $value = $outputs[$i]->getValue();
             $script = $outputs[$i]->getScript();
 
+            //アセット数の種類はmarker outputより前のoutput数と同じ
             if ($i < count($asset_quantities) && $asset_quantities[$i] > 0) {
+                $payload = MarkerOutput::parse_script($marker_output->getScript()->getBuffer());
+                $metadata = MarkerOutput::deserialize_payload($payload)->get_metadata();
+
+
+                //p2sh関連は現状未実装
+                $param = null;
+                if((is_null($metadata)  || strlen($metadata) == 0) && $previous_outputs[0]->get_script()->isP2SH($param) ) {
+ //                   $metadata = self::parse_issuance_p2sh_pointer($transaction-getInput(0)->getScript());
+                      throw new Exception("p2sh is not supported");
+                }
+                if (is_null($metadata)) {
+                    $metadata = "";
+                }
+                $output = new OaTransactionOutput($value, $script, $issuance_asset_id, $asset_quantities[$i] ,OutputType::ISSUANCE, $metadata);
+//var_dump($payload);
+//var_dump($metadata);
+            } else {
+                $output = new OaTransactionOutput($value, $script, null, 0 ,OutputType::ISSUANCE);
+            }
+            $result[] = $output;
+        }
+        $result[] = new OaTransactionOutput($marker_output->getValue(), $marker_output->getScript(), null, 0 ,OutputType::MARKER_OUTPUT);
+
+        $remove_outputs = array();
+        for ($i = $marker_output_index + 1; $i <= count($outputs) - 1; $i++) {
+            $marker_output_payload = MarkerOutput::parse_script($outputs[$i]->getScript()->getBuffer());
+//var_dump($marker_output_payload);
+            if (!is_null($marker_output_payload)) {
+                $remove_outputs[] = $outputs[$i];
+                $result[] = new OaTransactionOutput($outputs[$i]->getValue(), $outputs[$i]->getScript(), null, 0 ,OutputType::MARKER_OUTPUT);
+            }       
+        }
+        
+        foreach ($remove_outputs as $delete_output) {
+            if(($key = array_search($delete_output, $outputs)) !== false) {
+                unset($outputs[$key]);
             }
         }
 
+        $input_units_left =0;
+        $index = 0;
+        for ($i = $marker_output_index + 1; $i <= count($outputs) - 1; $i++) {
+            $output_asset_quantity = 0;
+            if ($i <= count($asset_quantities)) {
+                $output_asset_quantity = $asset_quantities[$i - 1];	
+            } else {
+                $output_asset_quantity = 0;
+            }
+            $output_units_left = $output_asset_quantity;
+            $asset_id = null;
+            $metadata = null;
+            while($output_units_left > 0) {
+            //for ($i =0 ; $i < 2; $i++){
+                $index++;
+                if ($input_units_left == 0) {
+                    foreach ($previous_outputs as $current_input) {
+                        $input_units_left = $current_input->get_asset_quantity();
+                        if (!is_null($current_input->get_asset_id())) {
+                            $progress = min([$input_units_left, $output_units_left]);
+                            $output_units_left -= $progress; 
+                            $input_units_left -= $progress; 
+                            if (is_null($asset_id)) {
+                                $asset_id = $current_input->get_asset_id();
+                                $metadata = $current_input->get_metadata_url();
+                            } else if ($asset_id != $current_input->get_asset_id()){
+                                return null;
+                            }
+                        }
+                    }
+                }
+            }
+            $result[] = new OaTransactionOutput($outputs[$i]->getValue(), $outputs[$i]->getScript(), $asset_id , $output_asset_quantity ,OutputType::TRANSFER, $metadata);
+        }
+        return $result;
+         
     }
  
     public function load_transaction($txid) {
@@ -120,4 +202,10 @@ class Openassets
         }
         return $decode_transaction;
     }
+/*
+    public function parse_issuance_p2sh_pointer($script) {
+        $buffer = Buffer::hex($script);
+        $script = new Script($buffer);
+    }
+*/
 }

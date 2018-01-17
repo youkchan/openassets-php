@@ -32,13 +32,22 @@ class OaTransactionOutput
         }
         $this->value = $value;
         $this->script = $script;
-        $this->asset_idd = $asset_id;
+        $this->asset_id = $asset_id;
         $this->asset_quantity = $asset_quantity;
         $this->output_type = $output_type;
         $this->metadata = $metadata;
         $this->get_load_asset_definition_url();
     }
 
+    public function get_asset_id()
+    {
+        return $this->asset_id;
+    }
+
+    public function get_asset_quantity()
+    {
+        return $this->asset_quantity;
+    }
     public function get_metadata_url()
     {
         if ($this->metadata) {

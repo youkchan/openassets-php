@@ -31,8 +31,8 @@ class OpenassetsTest extends TestCase
     }
 */
     public function test_list_unspent(){
-    //    $result = $this->openassets->list_unspent();
-        //var_dump($result);
+        $result = $this->openassets->list_unspent(["bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA"]);
+        var_dump($result);
     }
 
     public function test_get_unspent_outputs(){
@@ -57,8 +57,14 @@ class OpenassetsTest extends TestCase
         $transaction_id = "54844e349add3a8fe40034072679dcf067f44bcc7571cfc65dc82b031fda6e69"; //issue
         //$transaction_id = "480b6c74a188bfb5c69966f0156c2122ebe134b7aedd650cef50af26a5174746"; //send
 
-        return $this->openassets->get_output($transaction_id,0);
+        //var_dump($this->openassets->get_output($transaction_id,0));
     }
+
+    /*public function test_parse_issuance_p2sh_pointer() {
+        $te = '47304402202254f7da7c3fe2bf2a4dd2c3e255aa3ad61415550f648b564aea335f8fcd3d92022062eab5c01a5e33eb726f976ebd3b35d3991f8a45da56d64e1cd3fd5178f8c9a6012102effb2edfcf826d43027feae226143bdac058ad2e87b7cec26f97af2d357ddefa3217753d68747470733a2f2f676f6f2e676c2f626d564575777576a9148911455a265235b2d356a1324af000d4dae0326288ac';
+        return $this->openassets->parse_issuance_p2sh_pointer($te);
+        
+    }*/
 
     
 }

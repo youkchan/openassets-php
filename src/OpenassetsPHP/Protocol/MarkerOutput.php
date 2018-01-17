@@ -4,6 +4,7 @@ use BitWasp\Buffertools\Buffer;
 use BitWasp\Bitcoin\Script\Opcodes;
 use youkchan\OpenassetsPHP\Util;
 use BitWasp\Bitcoin\Script\ScriptFactory;
+use BitWasp\Buffertools\Buffertools;
 use Exception;
 
 
@@ -22,12 +23,33 @@ class MarkerOutput
         $this->metadata = $metadata;
     }
 
+    public function get_metadata()
+    {
+        return $this->metadata;
+    }
 
     public function get_asset_quantities()
     {
         return $this->asset_quantities;
     }
 
+/*
+    public function serialize_payload()
+    {
+        $payload = [self::OAP_MARKER, self::VERSION];
+        $buffer = Buffertools::numToVarInt(count($this->asset_quantities));
+        $payload[] = self::get_sort_hex($buffer);
+        foreach($this->asset_quantities as $quantity) {
+            $payload[] = Util::encode_leb128($quantity)[1];
+        }
+        $buffer = Buffertools::numToVarInt(strlen($this->metadata));
+        $payload[] = self::get_sort_hex($buffer);
+        //$tmp = null;
+        $meta_buffer = new Buffer($this->metadata);
+        $payload[] = $meta_buffer->getHex();
+        return implode('', $payload);
+    }
+*/
     public static function deserialize_payload($payload)
     {
         if (self::is_valid_payload($payload) !== true) {
@@ -77,7 +99,26 @@ class MarkerOutput
             return null;
         }
     }
-
+/*
+    public static function get_sort_hex(Buffer $buffer)
+    {
+        switch ($buffer->slice(0,1)->getHex()) {
+        case 'fd':
+            $newHex = $buffer->slice(0,1)->getHex().
+                $buffer->slice(2,3)->getHex().
+                $buffer->slice(1,1)->getHex();
+            return Buffer::hex($newHex)->getHex();
+        case 'fe':
+            $newHex = $buffer->slice(0,1)->getHex().
+                $buffer->slice(4,5)->getHex().
+                $buffer->slice(3,4)->getHex().
+                $buffer->slice(1,1)->getHex();
+            return Buffer::hex($newHex)->getHex();
+        default:
+            return $buffer->getHex();
+        }
+    }
+*/
     public static function is_valid_payload($payload) {
 
         if (is_null($payload)) {

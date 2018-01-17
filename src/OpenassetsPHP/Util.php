@@ -49,6 +49,24 @@ class Util
         }
     }
 
+    public static function encode_leb128($x)
+    {
+        if ($x < 0) {
+            throw new InvalidArgumentException("Value can't be < 0. Use sencode().", 10);
+        }
+        $str = '';
+        do {
+            $char = $x & 0x7f;
+            $x >>= 7;
+            if($x > 0){
+                $char |= 0x80;
+            }
+            $str .= chr($char);
+        } while ($x);
+        
+        return unpack('H*', $str);
+    }
+
     public static function decode_leb128($leb128)
     {
         $base = null;
