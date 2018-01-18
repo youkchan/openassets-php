@@ -108,6 +108,10 @@ class Util
            return self::OA_VERSION_BYTE;
         }
     }
+
+    public static function coin_to_satoshi($coin) {
+        return $coin * 100000000;
+    }
 /*
     def hash160(hex)
       bytes = [hex].pack("H*")

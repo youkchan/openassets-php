@@ -1,12 +1,32 @@
 <?php
 namespace youkchan\OpenassetsPHP\Networks;
-use BitWasp\Bitcoin\Bitcoin;
-use BitWasp\Bitcoin\Network\NetworkFactory;
+use youkchan\OpenassetsPHP\Networks\AbstractNetwork;
 use Exception;
 
 
-class LitecoinTestnet
+class LitecoinTestnet extends AbstractNetwork
+
 {
+
+    public function __construct() {
+        $this->cache = "cache.db";
+        $this->dust_limit = 600;
+        //$this->default_fee = 10000;
+        $this->default_fee = "auto";
+        $this->min_confirmation = 1; 
+        $this->max_confirmation = 9999999; 
+//        $this->rpc_host = "localhost";
+        $this->rpc_port = 19332;
+        $this->rpc_user = "rpc";
+        $this->rpc_password = "rpc";
+        $this->rpc_wallet = "";
+//        $this->rpc_schema = "http";
+        $this->rpc_timeout = 60;
+    }
+
+
+
+/*
     private $default_network_data = array(
         "cache" => "cache.db",
         "dust_limit" => 600,
@@ -54,5 +74,5 @@ class LitecoinTestnet
         }
         return $url;
     }
-
+*/
 }

@@ -35,6 +35,25 @@ ea34e5e94bd14cfb0aa85de2d94730c22e322b75a85a40146fdbf49bc886ec4c
 
     }
 
+    public function estimate_smartfee($confirmation) {
+        $params = array(
+            $confirmation,
+        );       
+        $result = array();
+        try {
+            $result = self::request("estimatesmartfee", $params);
+
+            if (!is_object($result) || !property_exists($result, 'feerate')) {
+                throw new Exception("invalid response");
+            }
+            $result = $result->feerate;
+        } catch (Exception $e) {
+            //No Execution
+        }
+        return $result;
+
+    }
+
     public function get_transaction($transaction_hash, $verbose = 0){
         $params = array(
             $transaction_hash,

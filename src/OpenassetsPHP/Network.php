@@ -57,6 +57,10 @@ class Network
         return $this->network->get_dust_limit();
     }
 
+    public function get_default_fee() {
+        return $this->network->get_default_fee();
+    }
+
     public function change_network($network) {
         if (!in_array($network, $this->network_list)) {
             throw new Exception($network . " is not supported" );

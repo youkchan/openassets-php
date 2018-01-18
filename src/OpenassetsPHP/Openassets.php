@@ -11,6 +11,9 @@ use BitWasp\Buffertools\Buffer;
 use BitWasp\Bitcoin\Transaction\TransactionFactory;
 use BitWasp\Bitcoin\Script\Script;
 use youkchan\OpenassetsPHP\Transaction\TransferParameters;
+use youkchan\OpenassetsPHP\Transaction\TransactionBuilder;
+use youkchan\OpenassetsPHP\Transaction\OaOutPoint;
+use youkchan\OpenassetsPHP\Transaction\SpendableOutput;
 //use BitWasp\Bitcoin\Crypto\Hash;
 use Exception;
 
@@ -42,11 +45,18 @@ class Openassets
     public function get_unspent_outputs($address_list = []) {
         Util::validate_addresses($address_list, $this->network->get_bclib_network());
         $unspent_list = $this->provider->list_unspent($address_list, $this->network);
-        $output_result = array();
+        $result = array();
         foreach ($unspent_list as $item) {
-            $output_result[] = self::get_output($item->txid,$item->vout);
+            $output_result = self::get_output($item->txid,$item->vout);
+            $output_result->account = $item->account;
+            $out_point = new OaOutPoint($item->txid, $item->vout);
+            $output = new SpendableOutput($out_point, $output_result);
+            $output->confirmations = $item->confirmations;
+            $output->spendable = $item->spendable;
+            $output->solvable = $item->solvable;
+            $result[] = $output;
         }
-        return $output_result;
+        return $result;
     }
 
     public function issue_asset($from, $amount, $metadata = null, $to = null, $fee = null, $mode = "broadcast", $output_quantity = 1) {
@@ -55,9 +65,11 @@ class Openassets
             $to = $from;
         } 
         $colored_outputs = self::get_unspent_outputs([Util::convert_oa_address_to_address($from)]);
-        $issue_param = new TransactionParameters($colored_outputs, $to, $amount, $output_quantity);
+        $issue_param = new TransferParameters($colored_outputs, $to, $amount, $output_quantity);
+        $transaction_builder = self::create_transaction_builder();
+        $transaction = $transaction_builder->issue_asset($issue_param, $metadata, $fee);
 
-var_dump($colored_outputs);
+//var_dump($colored_outputs);
     }
 
     public function get_output($txid, $vout) {
@@ -216,7 +228,16 @@ var_dump($colored_outputs);
     }
 
     public function create_transaction_builder() {
-        return new TransactionBuilder($this->network->get_dust_limit());
+        if ($this->network->get_default_fee() == "auto") {
+            $coin =  $this->provider->estimate_smartfee(1);
+            $estimated_fee_rate = 100000;
+            if (!empty($coin)) {
+                $estimated_fee_rate = Util::coin_to_satoshi($this->provider->estimate_smartfee(1));
+            }
+            return new TransactionBuilder($this->network->get_dust_limit(), $estimated_fee_rate);
+        } else {
+            return new TransactionBuilder($this->network->get_dust_limit(), $this->network->get_default_fee());
+        }
     }
 /*
     public function parse_issuance_p2sh_pointer($script) {

@@ -44,6 +44,11 @@ class OaTransactionOutput
         return $this->asset_id;
     }
 
+    public function get_value()
+    {
+        return $this->value;
+    }
+
     public function get_asset_quantity()
     {
         return $this->asset_quantity;

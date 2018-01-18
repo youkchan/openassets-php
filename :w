@@ -2,7 +2,6 @@
 namespace youkchan\OpenassetsPHP\Transaction;
 use BitWasp\Bitcoin\Transaction\TransactionFactory;
 use youkchan\OpenassetsPHP\Transaction\TransferParameters;
-use youkchan\OpenassetsPHP\Util;
 
 class TransactionBuilder
 {
@@ -23,26 +22,21 @@ class TransactionBuilder
         }
         $transaction = TransactionFactory::build();
         $uncolored_outputs = self::collect_uncolored_outputs($issue_spec->unspent_outputs, $this->amount * 2 + $fee);
-        $inputs = $uncolored_outputs[0];
+       /* $inputs = $uncolored_outputs[0];
         $total_amount = $uncolored_outputs[1];
         foreach ($inputs as $input) {
-            $transaction = $transaction->spendOutPoint($input->out_point(), $input->output()->get_script());
+            $transaction = $transaction->spendOutPoint($input->getWaspOutPoint(), $input->output()->getScript());
         }
-var_dump($issue_spec);
-var_dump($issue_spec->change_script);
-/*
         $issue_address  = Util::convert_oa_address_to_address($issue_spec->to_script);
         $from_address  = Util::convert_oa_address_to_address($issue_spec->change_script);
-        if (Util::is_valid_address($issue_address) == false || Util::is_valid_address($from_address) == false) {
+        if (AddressFactory::isValidAddress($issueAddress) == false || AddressFactory::isValidAddress($fromAddress) == false) {
             return false;
         }
-        $asset_quantities = [];
-        foreach ($issue_spec->split_output_amount() as $amount) {
-            $asset_quantities[] = $amount;
-            $address_creator = new AddressCreator();
-            $transaction = $transaction->payToAddress($this->amount, $address_creator->fromString($issue_address)); //getcoloredoutput
+        $assetQuantities = [];
+        foreach ($issueSpec->splitOutputAmount() as $amount) {
+            $assetQuantities[] = $amount;
+            $tx = $tx->payToAddress($this->amount, AddressFactory::fromString($issueAddress)); //getcoloredoutput
         }
-
         $tx = $tx->outputs([self::getMarkerOutput($assetQuantities, $metadata)]); //getcoloredoutput
         $tx = $tx->payToAddress($totalAmount - $this->amount - $fees, AddressFactory::fromString($fromAddress)); //getuncoloredoutput
         $tx = $tx->get();
@@ -54,15 +48,16 @@ var_dump($issue_spec->change_script);
         $total_amount = 0;
         $results = [];
         foreach($unspent_outputs as $unspent_output) {
-            if (is_null($unspent_output->output()->get_asset_id())) {
+var_dump($unspent_output);
+            /*if (is_null($unspent_output->output()->get_asset_id())) {
                 $results[] = $unspent_output;
                 $total_amount += $unspent_output->output()->get_value();
             }
             if ($total_amount >= $amount) {
                 return [$results, $total_amount];
-            } 
+            } */
         }
-        throw new Exception('Collect Uncolored Outputs went to Wrong');
+        //throw new Exception('Collect Uncolored Outputs went to Wrong');
     }  
     
     public function calc_fee($inputs_num, $outputs_num) 
