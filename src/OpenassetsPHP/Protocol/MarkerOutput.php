@@ -20,7 +20,17 @@ class MarkerOutput
     public function __construct($asset_quantities, $metadata)
     {
         $this->asset_quantities = $asset_quantities;
-        $this->metadata = $metadata;
+        if (is_null($metadata)) {
+            $this->metadata =  "";
+        } else {
+            $this->metadata = $metadata;
+        }
+    }
+
+    public function build_script()
+    {
+        $buffer = Buffer::hex($this->serialize_payload());
+        return ScriptFactory::sequence([Opcodes::OP_RETURN, $buffer]);
     }
 
     public function get_metadata()
@@ -33,7 +43,6 @@ class MarkerOutput
         return $this->asset_quantities;
     }
 
-/*
     public function serialize_payload()
     {
         $payload = [self::OAP_MARKER, self::VERSION];
@@ -49,7 +58,7 @@ class MarkerOutput
         $payload[] = $meta_buffer->getHex();
         return implode('', $payload);
     }
-*/
+
     public static function deserialize_payload($payload)
     {
         if (self::is_valid_payload($payload) !== true) {
@@ -72,6 +81,25 @@ class MarkerOutput
         $metaHex = Buffer::hex($payload)->slice(Buffer::hex($list)->getSize() + 1);
         $metadata = empty($metaHex) ? NULL : $metaHex->getBinary();
         return new MarkerOutput($asset_quantities, $metadata);
+    }
+
+    public static function get_sort_hex(Buffer $buffer)
+    {
+        switch ($buffer->slice(0,1)->getHex()) {
+        case 'fd':
+            $newHex = $buffer->slice(0,1)->getHex().
+                $buffer->slice(2,3)->getHex().
+                $buffer->slice(1,1)->getHex();
+            return Buffer::hex($newHex)->getHex();
+        case 'fe':
+            $newHex = $buffer->slice(0,1)->getHex().
+                $buffer->slice(4,5)->getHex().
+                $buffer->slice(3,4)->getHex().
+                $buffer->slice(1,1)->getHex();
+            return Buffer::hex($newHex)->getHex();
+        default:
+            return $buffer->getHex();
+        }
     }
 
     private static function parse_asset_quantity($payload)
@@ -99,26 +127,6 @@ class MarkerOutput
             return null;
         }
     }
-/*
-    public static function get_sort_hex(Buffer $buffer)
-    {
-        switch ($buffer->slice(0,1)->getHex()) {
-        case 'fd':
-            $newHex = $buffer->slice(0,1)->getHex().
-                $buffer->slice(2,3)->getHex().
-                $buffer->slice(1,1)->getHex();
-            return Buffer::hex($newHex)->getHex();
-        case 'fe':
-            $newHex = $buffer->slice(0,1)->getHex().
-                $buffer->slice(4,5)->getHex().
-                $buffer->slice(3,4)->getHex().
-                $buffer->slice(1,1)->getHex();
-            return Buffer::hex($newHex)->getHex();
-        default:
-            return $buffer->getHex();
-        }
-    }
-*/
     public static function is_valid_payload($payload) {
 
         if (is_null($payload)) {

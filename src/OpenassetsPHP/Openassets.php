@@ -65,7 +65,7 @@ class Openassets
             $to = $from;
         } 
         $colored_outputs = self::get_unspent_outputs([Util::convert_oa_address_to_address($from)]);
-        $issue_param = new TransferParameters($colored_outputs, $to, $amount, $output_quantity);
+        $issue_param = new TransferParameters($colored_outputs, $to, $from, $amount, $output_quantity, $this->network->get_bclib_network());
         $transaction_builder = self::create_transaction_builder();
         $transaction = $transaction_builder->issue_asset($issue_param, $metadata, $fee);
 
@@ -234,9 +234,16 @@ class Openassets
             if (!empty($coin)) {
                 $estimated_fee_rate = Util::coin_to_satoshi($this->provider->estimate_smartfee(1));
             }
-            return new TransactionBuilder($this->network->get_dust_limit(), $estimated_fee_rate);
+            return new TransactionBuilder($this->network->get_dust_limit(), $estimated_fee_rate, $this->network);
         } else {
-            return new TransactionBuilder($this->network->get_dust_limit(), $this->network->get_default_fee());
+            return new TransactionBuilder($this->network->get_dust_limit(), $this->network->get_default_fee(), $this->network);
+        }
+    }
+
+    public function process_transaction($transaction, $mode) {
+        if ($mode == "broadcast" || $mode == "signed") {
+        } else {
+            return $transaction;
         }
     }
 /*

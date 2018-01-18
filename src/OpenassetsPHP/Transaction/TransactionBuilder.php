@@ -1,19 +1,24 @@
 <?php
 namespace youkchan\OpenassetsPHP\Transaction;
 use BitWasp\Bitcoin\Transaction\TransactionFactory;
+use BitWasp\Bitcoin\Transaction\TransactionOutput;
 use youkchan\OpenassetsPHP\Transaction\TransferParameters;
 use youkchan\OpenassetsPHP\Util;
+use BitWasp\Bitcoin\Address\AddressCreator;
+use youkchan\OpenassetsPHP\Protocol\MarkerOutput;
 
 class TransactionBuilder
 {
 
     public $amount;
     public $estimated_fee_rate;
+    public $network;
 
-    public function __construct($amount = 600, $estimated_fee_rate = 10000)
+    public function __construct($amount = 600, $estimated_fee_rate = 10000, $network)
     {
         $this->amount = $amount;
         $this->estimated_fee_rate = $estimated_fee_rate;
+        $this->network = $network;
     }
 
     public function issue_asset(TransferParameters $issue_spec, $metadata, $fee = null) {
@@ -26,27 +31,30 @@ class TransactionBuilder
         $inputs = $uncolored_outputs[0];
         $total_amount = $uncolored_outputs[1];
         foreach ($inputs as $input) {
-            $transaction = $transaction->spendOutPoint($input->out_point(), $input->output()->get_script());
+            //$transaction = $transaction->spendOutPoint($input->out_point(), $input->output()->get_script());
+            $transaction->spendOutPoint($input->out_point(), $input->output()->get_script());
         }
-var_dump($issue_spec);
-var_dump($issue_spec->change_script);
-/*
+//var_dump($issue_spec);
+//var_dump($issue_spec->change_script);
+
         $issue_address  = Util::convert_oa_address_to_address($issue_spec->to_script);
         $from_address  = Util::convert_oa_address_to_address($issue_spec->change_script);
-        if (Util::is_valid_address($issue_address) == false || Util::is_valid_address($from_address) == false) {
-            return false;
-        }
         $asset_quantities = [];
         foreach ($issue_spec->split_output_amount() as $amount) {
             $asset_quantities[] = $amount;
             $address_creator = new AddressCreator();
-            $transaction = $transaction->payToAddress($this->amount, $address_creator->fromString($issue_address)); //getcoloredoutput
+            //$transaction = $transaction->payToAddress($this->amount, $address_creator->fromString($issue_address)); //getcoloredoutput
+            $transaction->payToAddress($this->amount, $address_creator->fromString($issue_address, $this->network->get_bclib_network())); //getcoloredoutput
         }
 
-        $tx = $tx->outputs([self::getMarkerOutput($assetQuantities, $metadata)]); //getcoloredoutput
-        $tx = $tx->payToAddress($totalAmount - $this->amount - $fees, AddressFactory::fromString($fromAddress)); //getuncoloredoutput
-        $tx = $tx->get();
-        return $tx;*/
+//var_dump($transaction);
+
+        $transaction->outputs([self::get_marker_output($asset_quantities, $metadata)]); //getcoloredoutput
+        $address_creator = new AddressCreator();
+        $transaction->payToAddress($total_amount - $this->amount - $fee, $address_creator->fromString($from_address,$this->network->get_bclib_network())); //getuncoloredoutput
+        $transaction->get();
+var_dump($transaction);
+        return $transaction;
     }
 
     public function collect_uncolored_outputs($unspent_outputs, $amount)
@@ -64,6 +72,12 @@ var_dump($issue_spec->change_script);
         }
         throw new Exception('Collect Uncolored Outputs went to Wrong');
     }  
+
+    public static function get_marker_output($asset_quantities, $metadata = null)
+    {
+        $marker_output = new MarkerOutput($asset_quantities, $metadata);
+        return new TransactionOutput(0, $marker_output->build_script());
+    }
     
     public function calc_fee($inputs_num, $outputs_num) 
     {
