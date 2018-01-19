@@ -52,8 +52,8 @@ class TransactionBuilder
         $transaction->outputs([self::get_marker_output($asset_quantities, $metadata)]); //getcoloredoutput
         $address_creator = new AddressCreator();
         $transaction->payToAddress($total_amount - $this->amount - $fee, $address_creator->fromString($from_address,$this->network->get_bclib_network())); //getuncoloredoutput
-        $transaction->get();
-var_dump($transaction);
+        $transaction = $transaction->get();
+        //var_dump($transaction->getBaseSerialization());
         return $transaction;
     }
 

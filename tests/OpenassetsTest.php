@@ -31,11 +31,13 @@ class OpenassetsTest extends TestCase
     }
 */
     public function test_list_unspent(){
-   //     $result = $this->openassets->list_unspent(["bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA"]);
+        //$result = $this->openassets->list_unspent(["bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA"]);
+    //    $result = $this->openassets->list_unspent(["bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK"]);
     }
 
     public function test_issue_asset() {
-        $result = $this->openassets->issue_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA",100);
+        //$result = $this->openassets->issue_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA",100);
+        //$result = $this->openassets->issue_asset("bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK",100, "https://test.co.jp",null ,50000);
     }
 
     public function test_get_unspent_outputs(){

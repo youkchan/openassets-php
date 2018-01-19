@@ -68,6 +68,7 @@ class Openassets
         $issue_param = new TransferParameters($colored_outputs, $to, $from, $amount, $output_quantity, $this->network->get_bclib_network());
         $transaction_builder = self::create_transaction_builder();
         $transaction = $transaction_builder->issue_asset($issue_param, $metadata, $fee);
+        $transaction_id = self::process_transaction($transaction);
 
 //var_dump($colored_outputs);
     }
@@ -240,11 +241,14 @@ class Openassets
         }
     }
 
-    public function process_transaction($transaction, $mode) {
+    public function process_transaction($transaction, $mode = "broadcast") {
         if ($mode == "broadcast" || $mode == "signed") {
+            $sign_transaction = $this->provider->sign_transaction($transaction->getBaseSerialization()->getHex());
+            $transaction_id = $this->provider->send_transaction($sign_transaction->hex);
         } else {
             return $transaction;
         }
+        return $transaction_id;
     }
 /*
     public function parse_issuance_p2sh_pointer($script) {

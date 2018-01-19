@@ -35,6 +35,33 @@ ea34e5e94bd14cfb0aa85de2d94730c22e322b75a85a40146fdbf49bc886ec4c
 
     }
 
+    public function sign_transaction($hashed_transaction) {
+        $params = array(
+            $hashed_transaction,
+        );
+        $result = array();
+        try {
+            $result = self::request("signrawtransaction", $params);
+        } catch (Exception $e) {
+            //No Execution
+        }
+        return $result;
+
+    }
+
+    public function send_transaction($signed_transaction) {
+        $params = array(
+            $signed_transaction,
+        );
+        $result = array();
+        try {
+            $result = self::request("sendrawtransaction", $params);
+        } catch (Exception $e) {
+            //No Execution
+        }
+        return $result;
+
+    }
     public function estimate_smartfee($confirmation) {
         $params = array(
             $confirmation,
