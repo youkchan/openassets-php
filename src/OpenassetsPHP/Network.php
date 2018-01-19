@@ -24,13 +24,27 @@ class Network
         "litecoinTestnet"
     );
 
-    public function __construct(){
+    public function __construct($params = array()){
+
         $default_network_name = $this->default_network_name;
+        if (!empty($params) && array_key_exists("network", $params) ) {
+            if ( in_array($params["network"], $this->network_list)) {
+                $default_network_name = $params["network"];
+            }
+            unset($params["network"]);
+        }
         Bitcoin::setNetwork(NetworkFactory::$default_network_name());
         $this->bclib_network = Bitcoin::getNetwork();
 
         $default_network_class_name = __NAMESPACE__ . "\\Networks\\" . ucfirst($this->default_network_name);
         $this->network = new $default_network_class_name;
+
+        if (!empty($params)) {
+            foreach ($params as $key => $value ){
+                $this->network->set($key, $value);
+            }
+        }
+
     }
 
     public function get_bclib_network() {

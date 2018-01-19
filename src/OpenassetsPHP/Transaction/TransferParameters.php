@@ -21,13 +21,19 @@ class TransferParameters
         $this->amount = $amount;
         $this->output_quantity = $output_quantity;
         $this->network = $network;
-        self::validate_address();
     }
 
-    public function validate_address() {
-        $issue_address  = Util::convert_oa_address_to_address($this->to_script);
-        $from_address  = Util::convert_oa_address_to_address($this->change_script);
-        Util::validate_addresses([$issue_address, $from_address], $this->network);
+    public function validate_address($both = "both") {
+        $addresses = [];
+        if($both == "both") {
+            $addresses[]  = Util::convert_oa_address_to_address($this->to_script);
+            $addresses[] = Util::convert_oa_address_to_address($this->change_script);
+        } else if ($both == "from") {
+            $addresses[] = Util::convert_oa_address_to_address($this->change_script);
+        } else if ($both == "to") {
+            $addresses[]  = Util::convert_oa_address_to_address($this->to_script);
+        }
+        Util::validate_addresses($addresses, $this->network);
     }
 
     public function split_output_amount()

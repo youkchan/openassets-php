@@ -1,17 +1,10 @@
 <?php
 namespace youkchan\OpenassetsPHP;
 use GuzzleHttp\Client;
-//use youkchan\OpenassetsPHP\Network;
 use Exception;
 
 class Provider
 {
-
-/*
-curl --data-binary '{"jsonrpc":"1.0","id":"jsonrpc","method":"getinfo","params":[]}' -H 'content-type:json;' http://rpc:rpc@localhost:19402
-
-ea34e5e94bd14cfb0aa85de2d94730c22e322b75a85a40146fdbf49bc886ec4c
-*/
 
     private $network;
     
@@ -119,24 +112,4 @@ ea34e5e94bd14cfb0aa85de2d94730c22e322b75a85a40146fdbf49bc886ec4c
         return $result->result;
    
     }
-/*
-    protected function post() {
-        $url = $this->network->get_server_url();
-//$url = "http://rpc:rpc@localhost:19402";
-$client = new Client();
-$res = $client->request('POST', $url, [
-    'json' => [
-      'method' => 'listunspent',
-      'jsonrpc' => '1.0',
-      'id' => 'jsonrpc',
-    ],
-    'timeout' => 60,
-    'headers' => [
-      'Content-Type' => 'json',
-    ]
-]);
-$result = json_decode($res->getBody());
-var_dump($result->result);
-echo "test";
-    }*/
 }

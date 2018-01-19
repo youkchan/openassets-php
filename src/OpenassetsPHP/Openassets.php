@@ -14,7 +14,6 @@ use youkchan\OpenassetsPHP\Transaction\TransferParameters;
 use youkchan\OpenassetsPHP\Transaction\TransactionBuilder;
 use youkchan\OpenassetsPHP\Transaction\OaOutPoint;
 use youkchan\OpenassetsPHP\Transaction\SpendableOutput;
-//use BitWasp\Bitcoin\Crypto\Hash;
 use Exception;
 
 class Openassets
@@ -25,8 +24,10 @@ class Openassets
     public function __construct($params = array()){
         if (empty($params)) {
             $this->network = new Network();
-            $this->provider = new Provider($this->network);
+        }else {
+            $this->network = new Network($params);
         }
+        $this->provider = new Provider($this->network);
     }
 
     public function get_network() {
@@ -66,46 +67,46 @@ class Openassets
         } 
         $colored_outputs = self::get_unspent_outputs([Util::convert_oa_address_to_address($from)]);
         $issue_param = new TransferParameters($colored_outputs, $to, $from, $amount, $output_quantity, $this->network->get_bclib_network());
+        $issue_param->validate_address("both");
         $transaction_builder = self::create_transaction_builder();
         $transaction = $transaction_builder->issue_asset($issue_param, $metadata, $fee);
         $transaction_id = self::process_transaction($transaction);
+        return $transaction_id;
+    }
 
-//var_dump($colored_outputs);
+    public function send_asset($from, $asset_id, $amount, $to, $fee = null, $mode = "broadcast", $output_quantity = 1) {
+        $colored_outputs = self::get_unspent_outputs([Util::convert_oa_address_to_address($from)]);
+        $asset_transfer_spec = new TransferParameters($colored_outputs, $to, $from, $amount, $output_quantity, $this->network->get_bclib_network());
+        $transaction_builder = self::create_transaction_builder();
+        $transaction = $transaction_builder->transfer_asset($asset_id, $asset_transfer_spec, $from, $fee);
+        $transaction_id = self::process_transaction($transaction);
+        return $transaction_id;
+//var_dump($transaction);
     }
 
     public function get_output($txid, $vout) {
-//var_dump($txid);
         $decode_transaction = self::load_transaction($txid);
         $transaction = TransactionFactory::fromHex($decode_transaction);
-//var_dump($transaction->getTxId());
         $colored_outputs = self::get_color_outputs_from_tx($transaction);
         return $colored_outputs[$vout]; 
     }
 
     public function get_color_outputs_from_tx($transaction) {
-//var_dump($transaction->getTxId());
         if(!$transaction->isCoinbase()) {
             foreach ($transaction->getOutputs() as $output_key => $output) {
-        //          var_dump($output->getScript()->getBuffer());
-                  //var_dump(Buffer::hex($output->hex));
                 $marker_output_payload = MarkerOutput::parse_script($output->getScript()->getBuffer());
                 if (!is_null($marker_output_payload)) {
                     $marker_output = MarkerOutput::deserialize_payload($marker_output_payload);
                     $previous_outputs = array();
 
                     foreach ($transaction->getInputs() as $previous_input) {
-//var_dump($previous_input);
                         $previous_outputs[] = self::get_output($previous_input->getOutpoint()->getTxId()->getHex(),$previous_input->getOutpoint()->getVout());
                     }
-//var_dump($previous_outputs);
-//var_dump($transaction->getTxId());
                    $asset_ids = self::compute_asset_ids($previous_outputs, $output_key, $transaction, $marker_output->get_asset_quantities());
                     if (!is_null($asset_ids)) {
                         return $asset_ids;
                     }
-//var_dump($previous_outputs);
                 }
-                //var_dump($output->getScript());
             }
         }
  
@@ -133,11 +134,9 @@ class Openassets
         $marker_output = $outputs[$marker_output_index];
         //Maker outputを含むトランザクション群で一番最初のトランザクションはasset issueのトランザクション
         $issuance_asset_id = Util::script_to_asset_id($previous_outputs[0]->get_script(), $this->network);
-//var_dump($marker_output_index);
         //marker output indexが1以上の場合それはアセットの発行を示す
         //issuance
         for ($i = 0 ; $i <= $marker_output_index -1 ; $i++) {
-//var_dump("test");
             $value = $outputs[$i]->getValue();
             $script = $outputs[$i]->getScript();
 
@@ -157,8 +156,6 @@ class Openassets
                     $metadata = "";
                 }
                 $output = new OaTransactionOutput($value, $script, $issuance_asset_id, $asset_quantities[$i] ,OutputType::ISSUANCE, $metadata);
-//var_dump($payload);
-//var_dump($metadata);
             } else {
                 $output = new OaTransactionOutput($value, $script, null, 0 ,OutputType::ISSUANCE);
             }
@@ -169,7 +166,6 @@ class Openassets
         $remove_outputs = array();
         for ($i = $marker_output_index + 1; $i <= count($outputs) - 1; $i++) {
             $marker_output_payload = MarkerOutput::parse_script($outputs[$i]->getScript()->getBuffer());
-//var_dump($marker_output_payload);
             if (!is_null($marker_output_payload)) {
                 $remove_outputs[] = $outputs[$i];
                 $result[] = new OaTransactionOutput($outputs[$i]->getValue(), $outputs[$i]->getScript(), null, 0 ,OutputType::MARKER_OUTPUT);
@@ -182,7 +178,7 @@ class Openassets
             }
         }
 
-        $input_units_left =0;
+        $input_units_left = 0;
         $index = 0;
         for ($i = $marker_output_index + 1; $i <= count($outputs) - 1; $i++) {
             $output_asset_quantity = 0;
@@ -195,7 +191,6 @@ class Openassets
             $asset_id = null;
             $metadata = null;
             while($output_units_left > 0) {
-            //for ($i =0 ; $i < 2; $i++){
                 $index++;
                 if ($input_units_left == 0) {
                     foreach ($previous_outputs as $current_input) {
@@ -250,6 +245,8 @@ class Openassets
         }
         return $transaction_id;
     }
+
+
 /*
     public function parse_issuance_p2sh_pointer($script) {
         $buffer = Buffer::hex($script);

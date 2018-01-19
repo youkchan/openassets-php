@@ -112,6 +112,19 @@ class Util
     public static function coin_to_satoshi($coin) {
         return $coin * 100000000;
     }
+
+    public static function array_flatten(array $arr) 
+    {
+        $result = array();
+        foreach ($arr as $item) {
+            if (is_array($item)) {
+                $result = array_merge($result, array_flatten($item));
+            } else {
+                $result[] = $item;
+            }
+        }
+        return $result;
+    }
 /*
     def hash160(hex)
       bytes = [hex].pack("H*")

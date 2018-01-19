@@ -1,44 +1,51 @@
 <?php
 use PHPUnit\Framework\TestCase;
 use youkchan\OpenassetsPHP\Openassets;
+require_once "Bootstrap.php";
 
 class OpenassetsTest extends TestCase
 {
 
     private $openassets;
+    private $coin_name;
 
     public function setUp(){
-        $this->openassets = new Openassets(); 
+        $params = array(
+         //   "network" =>"monacoinTestnet", 
+        );
+        $this->openassets = new Openassets($params); 
+        $this->coin_name = get_run_coin_name();
     }
  
-/*    public function testGetApi(){
-        $openassets = new Openassets();
-        $api = $openassets->getApi();
-        $this->assertSame($api->get("network"),'mainnet');
-        $this->assertSame($api->get("provider"),'monacoin');
-        $this->assertSame($api->get("cache"),'cache.db');
-        $this->assertSame($api->get("dust_limit"),600);
-        $this->assertSame($api->get("default_fee"),10000);
-        $this->assertSame($api->get("min_confirmation"),1);
-        $this->assertSame($api->get("max_confirmation"),9999999);
-        $this->assertSame($api->get("rpc_host"),'localhost');
-        $this->assertSame($api->get("rpc_user"),'');
-        $this->assertSame($api->get("rpc_password"),'');
-        $this->assertSame($api->get("rpc_wallet"),'');
-        $this->assertSame($api->get("rpc_schema"),'https');
-        $this->assertSame($api->get("rpc_timeout"),60);
-        $this->assertSame($api->get("rpc_open_timeout"),60);
-    }
-*/
     public function test_list_unspent(){
-        //$result = $this->openassets->list_unspent(["bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA"]);
-    //    $result = $this->openassets->list_unspent(["bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK"]);
+        $result = array();
+        if ($this->coin_name == "litecoin") {
+            $result = $this->openassets->list_unspent(["bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA"]);
+        }
+      //  else if ($this->coin_name == "monacoin") {
+      //      $result = $this->openassets->list_unspent(["b6NdFLNHmvbMafTrdRKuoKDnTnVuesayKj6"]);
+      //  }
+        else {
+            $this->fail("node not run.");
+        }
+        foreach ($result as $item) {
+            $this->assertTrue(is_object($item));
+            $object_list = explode("\\",get_class($item));
+            $this->assertEquals(end($object_list), "SpendableOutput");
+        }
     }
 
     public function test_issue_asset() {
         //$result = $this->openassets->issue_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA",100);
         //$result = $this->openassets->issue_asset("bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK",100, "https://test.co.jp",null ,50000);
     }
+
+    public function test_send_asset() {
+        $result = $this->openassets->send_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA","ocqrkQqGpnWQKcdJAdrid5Ur9os7JQRbqb",50 ,"bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK", 50000);
+        //$result = $this->openassets->transfer_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA",100);
+var_dump($result);
+    }
+
 
     public function test_get_unspent_outputs(){
         //$address = ['mzi2Dbx1Q9gdFHhJga2rEhyMaUT5QuMrk3'];
@@ -72,6 +79,6 @@ class OpenassetsTest extends TestCase
     }*/
 
     public function test_create_transaction_builder() {
-        $this->openassets->create_transaction_builder();
+//        $this->openassets->create_transaction_builder();
     }    
 }

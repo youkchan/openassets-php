@@ -21,6 +21,14 @@ class AbstractNetwork
     protected $rpc_schema = "http";
     protected $rpc_timeout = 60;
 
+    public function set($var , $value) {
+        if (property_exists($this, $var)) {
+            $this->$var = $value;
+        } else {
+            throw new Exception(" cannot set property : " . $$var );
+        }
+    }
+
     public function get_max_confirmation() {
         return $this->max_confirmation;
     }
