@@ -94,14 +94,14 @@ class TransactionBuilder
             throw new Exception('DustOutputError');
         }
         $address_creator = new AddressCreator();
-        $address = $address_creator->fromString($address);
+        $address = $address_creator->fromString($address, $this->network->get_bclib_network());
         return new TransactionOutput($value, $address->getScriptPubKey());
     }
 
     public function create_colored_output($address)
     {
         $address_creator = new AddressCreator();
-        $address = $address_creator->fromString($address);
+        $address = $address_creator->fromString($address, $this->network->get_bclib_network());
         return new TransactionOutput($this->amount, $address->getScriptPubKey());
     }
 

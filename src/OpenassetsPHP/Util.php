@@ -7,6 +7,7 @@ use BitWasp\Bitcoin\Address\AddressCreator;
 use TheFox\Utilities\Leb128;
 use youkchan\OpenassetsPHP\Network;
 use BitWasp\Bitcoin\Crypto\Hash;
+use BitWasp\Bitcoin\Script\Classifier\OutputClassifier;
 use Exception;
 
 class Util
@@ -125,10 +126,27 @@ class Util
         }
         return $result;
     }
-/*
-    def hash160(hex)
-      bytes = [hex].pack("H*")
-      Digest::RMD160.hexdigest Digest::SHA256.digest(bytes)
-    end
-*/
+
+    public static function script_to_address($script,$network)
+    {
+        $address_creator = new AddressCreator();
+        $classifier = new OutputClassifier();
+        $type = $classifier->classify($script);
+        if ($type == OutputClassifier::MULTISIG) {
+            $multiSig = new Multisig($script);
+            $res = [];
+            foreach($multiSig->getKeys() as $key) {
+                $res[] = $key->getAddress()->getAddress();
+            }
+            return $res;
+        } elseif ($type == OutputClassifier::PAYTOPUBKEY) {
+            $pubkey = new PayToPubkey($script);
+            return $pubkey[0]->getAddress();
+        } elseif ($type == OutputClassifier::PAYTOSCRIPTHASH) {
+            $script = $address_creator->fromScript($script, $network);
+            return $script->getAddress();
+        } elseif ($type == OutputClassifier::PAYTOPUBKEYHASH) {
+            return $address_creator->fromOutputScript($script)->getAddress();
+        } 
+    }
 }

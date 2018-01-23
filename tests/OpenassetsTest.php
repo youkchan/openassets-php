@@ -15,6 +15,7 @@ class OpenassetsTest extends TestCase
         );
         $this->openassets = new Openassets($params); 
         $this->coin_name = get_run_coin_name();
+//mhDzuVMjCS6BEj4HHMbGURerHbSqXhiFZC
     }
  
     public function test_list_unspent(){
@@ -35,15 +36,23 @@ class OpenassetsTest extends TestCase
         }
     }
 
+    public function test_get_balance() {
+        $result = $this->openassets->get_balance();
+ini_set('xdebug.var_display_max_children', -1);
+ini_set('xdebug.var_display_max_data', -1);
+ini_set('xdebug.var_display_max_depth', -1);
+//var_dump($result);
+    }
+
     public function test_issue_asset() {
         //$result = $this->openassets->issue_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA",100);
         //$result = $this->openassets->issue_asset("bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK",100, "https://test.co.jp",null ,50000);
     }
 
     public function test_send_asset() {
-        $result = $this->openassets->send_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA","ocqrkQqGpnWQKcdJAdrid5Ur9os7JQRbqb",50 ,"bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK", 50000);
+  //      $result = $this->openassets->send_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA","ocqrkQqGpnWQKcdJAdrid5Ur9os7JQRbqb",50 ,"bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK", 50000);
         //$result = $this->openassets->transfer_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA",100);
-var_dump($result);
+//var_dump($result);
     }
 
 

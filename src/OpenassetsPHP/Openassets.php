@@ -43,6 +43,90 @@ class Openassets
         return $outputs;
     }
 
+    public function get_balance($address = null) {
+ini_set('xdebug.var_display_max_children', -1);
+ini_set('xdebug.var_display_max_data', -1);
+ini_set('xdebug.var_display_max_depth', -1);
+
+        if (is_null($address)) {
+            $address_list = [];
+        }else {
+            $address_list = [Util::convert_oa_address_to_address($address)];
+        }
+        $outputs = $this->get_unspent_outputs($address_list);
+        $output_group_by_address = [];
+        foreach ($outputs as $output) {
+            $coin_address = Util::script_to_address($output->output()->get_script(), $this->network->get_bclib_network());
+            $is_address_in_array = false;
+            $balance_group_by_address = array();
+            $asset = null;
+            foreach ($output_group_by_address as $key => $each_balance) {
+                if (is_array($each_balance) && $coin_address === $key ) {
+                    if (!is_null($output->output->asset_id)) {
+                        $asset["asset_id"] = $output->output->asset_id;
+                        $asset["quantity"] = $output->output->asset_quantity;
+                        //$asset["amount"] = $output->output->asset_id; //TODO
+                        $asset["asset_definition_url"] = $output->output->asset_definition_url;
+                        //$asset["proof_of_authenticity"] = $output->output->proof_of_authenticity;
+                        $output_group_by_address[$key]["assets"][] = $asset;
+                    }
+                    $output_group_by_address[$key]["value"] = $each_balance["value"] + $output->output->value;
+                    $is_address_in_array = true;
+                    break;
+                }
+            }
+            if (!$is_address_in_array) {
+                $user["address"] = $coin_address;
+                if (is_null($coin_address)) {
+                    $user["oa_address"] = null;
+                } else {
+                    $user["oa_address"] = Util::convert_address_to_oa_address($coin_address);
+                }
+                $user["account"] = $output->output->account;
+                $value = $output->output->value;
+                if (!is_null($output->output->asset_id)) {
+                    $asset["asset_id"] = $output->output->asset_id;
+                    $asset["quantity"] = $output->output->asset_quantity;
+                    //$asset["amount"] = $output->output->asset_id; //TODO
+                    $asset["asset_definition_url"] = $output->output->asset_definition_url;
+                    //$asset["proof_of_authenticity"] = $output->output->proof_of_authenticity;
+                    $output_group_by_address[$coin_address]["assets"][] = $asset;
+                }
+                $output_group_by_address[$coin_address]["user"] = $user;
+                $output_group_by_address[$coin_address]["value"] = $value;
+            }
+        }
+
+        foreach ($output_group_by_address as $key => $each_balance) {
+            if(isset($each_balance["assets"]) && count($each_balance["assets"]) >= 2) {
+                $asset_list = [];
+                $is_asset_in_array = false;
+                foreach ($each_balance["assets"] as $asset) {
+                    foreach ($asset_list as $item) {
+                        if (is_array($item) && $asset["asset_id"] === $item["asset_id"] ) {
+                            $asset["quantity"] = $item["quantity"] + $asset["quantity"];
+                            $asset_list[$asset["asset_id"]] = $asset;
+                            $is_asset_in_array = true;
+                            break;
+                        }
+                    }
+                    if (!$is_asset_in_array) {
+                        $asset_list[$asset["asset_id"]] = $asset;
+                    }
+                }
+
+                $assets = [];
+                foreach ($asset_list as $item){
+                    $assets[] = $item;
+                }
+                $output_group_by_address[$key]["assets"] = $assets;
+            
+            }
+        }
+        $result = $output_group_by_address; 
+        return $result;
+    }
+
     public function get_unspent_outputs($address_list = []) {
         Util::validate_addresses($address_list, $this->network->get_bclib_network());
         $unspent_list = $this->provider->list_unspent($address_list, $this->network);
