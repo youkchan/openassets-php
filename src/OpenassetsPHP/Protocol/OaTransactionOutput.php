@@ -39,6 +39,30 @@ class OaTransactionOutput
         $this->get_load_asset_definition_url();
     }
 
+    public function get_asset_amount() {
+        $divisibility = $this->get_divisibility();
+        if ($divisibility > 0 ){
+            return $this->asset_quantity / (10 ** $divisibility);
+        } else {
+            return $this->asset_quantity;
+        }
+    }
+
+    public function get_divisibility() {
+        if (!$this->valid_asset_definition() || is_null(!$this->assetdefinition->divisibility)) {
+            return 0;
+        }
+        return $this->asset_definition->divibility;
+    }
+
+    public function get_proof_of_authenticity() {
+        if ($this->valid_asset_definition()) {
+            return $this->asset_definition->proof_of_authenticity;
+        } else {
+            return false;
+        }
+    }
+
     public function get_asset_id()
     {
         return $this->asset_id;

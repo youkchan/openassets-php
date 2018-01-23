@@ -7,13 +7,13 @@ use youkchan\OpenassetsPHP\Provider;
 use youkchan\OpenassetsPHP\Protocol\MarkerOutput;
 use youkchan\OpenassetsPHP\Protocol\OutputType;
 use youkchan\OpenassetsPHP\Protocol\OaTransactionOutput;
-use BitWasp\Buffertools\Buffer;
-use BitWasp\Bitcoin\Transaction\TransactionFactory;
-use BitWasp\Bitcoin\Script\Script;
 use youkchan\OpenassetsPHP\Transaction\TransferParameters;
 use youkchan\OpenassetsPHP\Transaction\TransactionBuilder;
 use youkchan\OpenassetsPHP\Transaction\OaOutPoint;
 use youkchan\OpenassetsPHP\Transaction\SpendableOutput;
+use BitWasp\Buffertools\Buffer;
+use BitWasp\Bitcoin\Transaction\TransactionFactory;
+use BitWasp\Bitcoin\Script\Script;
 use Exception;
 
 class Openassets
@@ -65,9 +65,9 @@ ini_set('xdebug.var_display_max_depth', -1);
                     if (!is_null($output->output->asset_id)) {
                         $asset["asset_id"] = $output->output->asset_id;
                         $asset["quantity"] = $output->output->asset_quantity;
-                        //$asset["amount"] = $output->output->asset_id; //TODO
+                        $asset["amount"] = $output->output->get_asset_amount();
                         $asset["asset_definition_url"] = $output->output->asset_definition_url;
-                        //$asset["proof_of_authenticity"] = $output->output->proof_of_authenticity;
+                        $asset["proof_of_authenticity"] = $output->output->get_proof_of_authenticity();
                         $output_group_by_address[$key]["assets"][] = $asset;
                     }
                     $output_group_by_address[$key]["value"] = $each_balance["value"] + $output->output->value;
@@ -87,9 +87,9 @@ ini_set('xdebug.var_display_max_depth', -1);
                 if (!is_null($output->output->asset_id)) {
                     $asset["asset_id"] = $output->output->asset_id;
                     $asset["quantity"] = $output->output->asset_quantity;
-                    //$asset["amount"] = $output->output->asset_id; //TODO
+                    $asset["amount"] = $output->output->get_asset_amount();
                     $asset["asset_definition_url"] = $output->output->asset_definition_url;
-                    //$asset["proof_of_authenticity"] = $output->output->proof_of_authenticity;
+                    $asset["proof_of_authenticity"] = $output->output->get_proof_of_authenticity();
                     $output_group_by_address[$coin_address]["assets"][] = $asset;
                 }
                 $output_group_by_address[$coin_address]["user"] = $user;
@@ -105,6 +105,7 @@ ini_set('xdebug.var_display_max_depth', -1);
                     foreach ($asset_list as $item) {
                         if (is_array($item) && $asset["asset_id"] === $item["asset_id"] ) {
                             $asset["quantity"] = $item["quantity"] + $asset["quantity"];
+                            $asset["amount"] = $item["amount"] + $asset["amount"];
                             $asset_list[$asset["asset_id"]] = $asset;
                             $is_asset_in_array = true;
                             break;
