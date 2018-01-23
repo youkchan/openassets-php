@@ -166,7 +166,6 @@ ini_set('xdebug.var_display_max_depth', -1);
         $transaction = $transaction_builder->transfer_asset($asset_id, $asset_transfer_spec, $from, $fee);
         $transaction_id = self::process_transaction($transaction);
         return $transaction_id;
-//var_dump($transaction);
     }
 
     public function get_output($txid, $vout) {
@@ -201,7 +200,7 @@ ini_set('xdebug.var_display_max_depth', -1);
         }
         return $colored_outputs;
     }
-    /*
+    /**
      * @param transaction         : MainchainのUTXO(以下transactionは全てUTXO)
      * @param previous_outputs    : marker outputを含むtransactionのinput(previous output)から作成したOaTransactionOutput
      * @param marker_output_index : transactionのなかのoutputでmarker outputを含むoutputのindex
@@ -234,8 +233,8 @@ ini_set('xdebug.var_display_max_depth', -1);
                 //p2sh関連は現状未実装
                 $param = null;
                 if((is_null($metadata)  || strlen($metadata) == 0) && $previous_outputs[0]->get_script()->isP2SH($param) ) {
- //                   $metadata = self::parse_issuance_p2sh_pointer($transaction-getInput(0)->getScript());
-                      throw new Exception("p2sh is not supported");
+                    //$metadata = self::parse_issuance_p2sh_pointer($transaction-getInput(0)->getScript());
+                    throw new Exception("p2sh is not supported");
                 }
                 if (is_null($metadata)) {
                     $metadata = "";

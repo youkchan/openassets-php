@@ -38,10 +38,6 @@ class OpenassetsTest extends TestCase
 
     public function test_get_balance() {
         $result = $this->openassets->get_balance();
-ini_set('xdebug.var_display_max_children', -1);
-ini_set('xdebug.var_display_max_data', -1);
-ini_set('xdebug.var_display_max_depth', -1);
-var_dump($result);
     }
 
     public function test_issue_asset() {

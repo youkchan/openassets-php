@@ -6,6 +6,8 @@ $openassets = new Openassets();
 
 //var_dump($openassets->list_unspent(["bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK"]));
 
+var_dump($openassets->get_balance());
+/*
 $from_oa_address = "bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK";
 $amount = 600;
 $metadata = "http://google.com";
@@ -18,3 +20,4 @@ $to_oa_address = "";
 $asset_id = "";
 
 var_dump($openassets->send_asset($from_oa_address,$asset_id , $amount, $to_oa_address, $fee));
+*/
