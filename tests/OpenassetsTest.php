@@ -15,7 +15,6 @@ class OpenassetsTest extends TestCase
         );
         $this->openassets = new Openassets($params); 
         $this->coin_name = get_run_coin_name();
-//mhDzuVMjCS6BEj4HHMbGURerHbSqXhiFZC
     }
  
     public function test_list_unspent(){

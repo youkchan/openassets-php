@@ -4,7 +4,7 @@ use BitWasp\Bitcoin\Transaction\TransactionFactory;
 use BitWasp\Bitcoin\Transaction\TransactionOutput;
 use youkchan\OpenassetsPHP\Transaction\TransferParameters;
 use youkchan\OpenassetsPHP\Util;
-use BitWasp\Bitcoin\Address\AddressCreator;
+use BitWasp\Bitcoin\Address\AddressFactory;
 use youkchan\OpenassetsPHP\Protocol\MarkerOutput;
 use BitWasp\Bitcoin\Script\ScriptFactory;
 use Exception;
@@ -33,29 +33,21 @@ class TransactionBuilder
         $inputs = $uncolored_outputs[0];
         $total_amount = $uncolored_outputs[1];
         foreach ($inputs as $input) {
-            //$transaction = $transaction->spendOutPoint($input->out_point(), $input->output()->get_script());
             $transaction->spendOutPoint($input->out_point(), $input->output()->get_script());
         }
-//var_dump($issue_spec);
-//var_dump($issue_spec->change_script);
 
         $issue_address  = Util::convert_oa_address_to_address($issue_spec->to_script);
         $from_address  = Util::convert_oa_address_to_address($issue_spec->change_script);
         $asset_quantities = [];
         foreach ($issue_spec->split_output_amount() as $amount) {
             $asset_quantities[] = $amount;
-            $address_creator = new AddressCreator();
-            //$transaction = $transaction->payToAddress($this->amount, $address_creator->fromString($issue_address)); //getcoloredoutput
-            $transaction->payToAddress($this->amount, $address_creator->fromString($issue_address, $this->network->get_bclib_network())); //getcoloredoutput
+            $transaction->payToAddress($this->amount, AddressFactory::fromString($issue_address, $this->network->get_bclib_network())); //getcoloredoutput
         }
 
-//var_dump($transaction);
 
         $transaction->outputs([self::get_marker_output($asset_quantities, $metadata)]); //getcoloredoutput
-        $address_creator = new AddressCreator();
-        $transaction->payToAddress($total_amount - $this->amount - $fee, $address_creator->fromString($from_address,$this->network->get_bclib_network())); //getuncoloredoutput
+        $transaction->payToAddress($total_amount - $this->amount - $fee, AddressFactory::fromString($from_address,$this->network->get_bclib_network())); //getuncoloredoutput
         $transaction = $transaction->get();
-        //var_dump($transaction->getBaseSerialization());
         return $transaction;
     }
 
@@ -93,15 +85,13 @@ class TransactionBuilder
         if ($value < $this->amount) {
             throw new Exception('DustOutputError');
         }
-        $address_creator = new AddressCreator();
-        $address = $address_creator->fromString($address, $this->network->get_bclib_network());
+        $address = AddressFactory::fromString($address, $this->network->get_bclib_network());
         return new TransactionOutput($value, $address->getScriptPubKey());
     }
 
     public function create_colored_output($address)
     {
-        $address_creator = new AddressCreator();
-        $address = $address_creator->fromString($address, $this->network->get_bclib_network());
+        $address = AddressFactory::fromString($address, $this->network->get_bclib_network());
         return new TransactionOutput($this->amount, $address->getScriptPubKey());
     }
 
