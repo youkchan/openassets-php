@@ -23,7 +23,7 @@
       }
     },
     "require": {
-        "youkchan/monacoin": "^0.0.34.2",
+        "youkchan/monacoin": "^0.0.34.x-dev",
         "guzzlehttp/guzzle": "^6.3",
         "thefox/utilities": "^1.11"
     }
