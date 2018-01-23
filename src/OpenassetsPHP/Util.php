@@ -3,7 +3,7 @@ namespace youkchan\OpenassetsPHP;
 use BitWasp\Bitcoin\Base58;
 use BitWasp\Buffertools\Buffer;
 use BitWasp\Buffertools\Buffertools;
-use BitWasp\Bitcoin\Address\AddressFactory;
+use BitWasp\Bitcoin\Address\AddressCreator;
 use TheFox\Utilities\Leb128;
 use youkchan\OpenassetsPHP\Network;
 use BitWasp\Bitcoin\Crypto\Hash;
@@ -38,9 +38,10 @@ class Util
 
     public static function validate_addresses($address_list, $network) {
 
+        $address_creator = new AddressCreator();
         foreach ($address_list as $address) {
             try {
-                AddressFactory::fromString($address, $network);
+                $address_creator->fromString($address, $network);
             } catch (Exception $e){
                 throw new Exception($address . " is invalid bitcoin address" );
             }    
@@ -126,6 +127,7 @@ class Util
 
     public static function script_to_address($script,$network)
     {
+        $address_creator = new AddressCreator();
         $classifier = new OutputClassifier();
         $type = $classifier->classify($script);
         if ($type == OutputClassifier::MULTISIG) {
@@ -139,10 +141,10 @@ class Util
             $pubkey = new PayToPubkey($script);
             return $pubkey[0]->getAddress();
         } elseif ($type == OutputClassifier::PAYTOSCRIPTHASH) {
-            $script = AddressFactory::fromScript($script, $network);
+            $script = $address_creator->fromScript($script, $network);
             return $script->getAddress();
         } elseif ($type == OutputClassifier::PAYTOPUBKEYHASH) {
-            return AddressFactory::fromOutputScript($script)->getAddress();
+            return $address_creator->fromOutputScript($script)->getAddress();
         } 
     }
 }
