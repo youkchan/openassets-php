@@ -11,6 +11,7 @@ composer require youkchan/openassetsphp
 
 sampleディレクトリにあるsample.phpを参照ください。
 sampleディレクトリ内で実行できるようにしています。
+現在はlitecoinとmonacoinのtestnetで使用できるようにしています。
 デフォルトではmonacoin testnetに接続します。
 
 ## Acknowledgment
