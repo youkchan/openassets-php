@@ -9,12 +9,12 @@ composer require youkchan/openassetsphp
 
 ## Sample
 
-sample$B%G%#%l%/%H%j$K$"$k(Bsample.php$B$r;2>H$/$@$5$$!#(B
-sample$B%G%#%l%/%H%jFb$G<B9T$G$-$k$h$&$K$7$F$$$^$9!#(B
-$B8=:_$O(Blitecoin$B$H(Bmonacoin$B$N(Btestnet$B$G;HMQ$G$-$k$h$&$K$7$F$$$^$9!#(B
-$B%G%U%)%k%H$G$O(Bmonacoin testnet$B$K@\B3$7$^$9!#(B
+sampleディレクトリにあるsample.phpを参照ください。
+sampleディレクトリ内で実行できるようにしています。
+現在はlitecoinとmonacoinのtestnetで使用できるようにしています。
+デフォルトではmonacoin testnetに接続します。
 
 ## Acknowledgment
-$B2<5-%W%m%8%'%/%H$rBg$$$K;29M$K$7$^$7$?!#;29M$K$7$^$7$?!JBg@Z$J;v$J$N$G(Bry$B!K(B
+下記プロジェクトを大いに参考にしました。参考にしました（大切な事なのでry）
 https://github.com/haw-itn/openassets-ruby
 https://github.com/OKohei/openassets-php
