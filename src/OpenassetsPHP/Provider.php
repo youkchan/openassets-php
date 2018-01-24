@@ -14,8 +14,8 @@ class Provider
 
     public function list_unspent($addresses = []) {
         $params = array(
-            $this->network->get_min_confirmation(),
-            $this->network->get_max_confirmation(),
+            $this->network->get("min_confirmation"),
+            $this->network->get("max_confirmation"),
             $addresses,
         );
         $result = array();
@@ -90,7 +90,7 @@ class Provider
 
     protected function request($command, $params) {
         $url = $this->network->get_server_url();
-        $timeout = $this->network->get_timeout();
+        $timeout = $this->network->get("rpc_timeout");
         $client = new Client();
         try {
             $response = $client->request('POST', $url, [

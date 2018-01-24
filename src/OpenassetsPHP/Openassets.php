@@ -44,9 +44,6 @@ class Openassets
     }
 
     public function get_balance($address = null) {
-ini_set('xdebug.var_display_max_children', -1);
-ini_set('xdebug.var_display_max_data', -1);
-ini_set('xdebug.var_display_max_depth', -1);
 
         if (is_null($address)) {
             $address_list = [];
@@ -145,13 +142,17 @@ ini_set('xdebug.var_display_max_depth', -1);
         return $result;
     }
 
-    public function issue_asset($from, $amount, $metadata = null, $to = null, $fee = null, $mode = "broadcast", $output_quantity = 1) {
-   
+    public function issue_asset($from, $quantity, $metadata = null, $to = null, $fee = null, $mode = "broadcast", $output_quantity = 1) {
+  
+        if (is_null($from) || is_null($quantity)) {
+            throw new Exception("the parameters from and quantity should not be null. ");
+        }
+ 
         if (is_null($to)) {
             $to = $from;
         } 
         $colored_outputs = self::get_unspent_outputs([Util::convert_oa_address_to_address($from)]);
-        $issue_param = new TransferParameters($colored_outputs, $to, $from, $amount, $output_quantity, $this->network->get_bclib_network());
+        $issue_param = new TransferParameters($colored_outputs, $to, $from, $quantity, $output_quantity, $this->network->get_bclib_network());
         $issue_param->validate_address("both");
         $transaction_builder = self::create_transaction_builder();
         $transaction = $transaction_builder->issue_asset($issue_param, $metadata, $fee);
@@ -159,9 +160,13 @@ ini_set('xdebug.var_display_max_depth', -1);
         return $transaction_id;
     }
 
-    public function send_asset($from, $asset_id, $amount, $to, $fee = null, $mode = "broadcast", $output_quantity = 1) {
+    public function send_asset($from, $asset_id, $quantity, $to, $fee = null, $mode = "broadcast", $output_quantity = 1) {
+        if (is_null($from) || is_null($quantity)) {
+            throw new Exception("the parameters from and quantity should not be null. ");
+        }
+
         $colored_outputs = self::get_unspent_outputs([Util::convert_oa_address_to_address($from)]);
-        $asset_transfer_spec = new TransferParameters($colored_outputs, $to, $from, $amount, $output_quantity, $this->network->get_bclib_network());
+        $asset_transfer_spec = new TransferParameters($colored_outputs, $to, $from, $quantity, $output_quantity, $this->network->get_bclib_network());
         $transaction_builder = self::create_transaction_builder();
         $transaction = $transaction_builder->transfer_asset($asset_id, $asset_transfer_spec, $from, $fee);
         $transaction_id = self::process_transaction($transaction);
@@ -308,15 +313,15 @@ ini_set('xdebug.var_display_max_depth', -1);
     }
 
     public function create_transaction_builder() {
-        if ($this->network->get_default_fee() == "auto") {
+        if ($this->network->get("default_fee") == "auto") {
             $coin =  $this->provider->estimate_smartfee(1);
             $estimated_fee_rate = 100000;
             if (!empty($coin)) {
                 $estimated_fee_rate = Util::coin_to_satoshi($this->provider->estimate_smartfee(1));
             }
-            return new TransactionBuilder($this->network->get_dust_limit(), $estimated_fee_rate, $this->network);
+            return new TransactionBuilder($this->network->get("dust_limit"), $estimated_fee_rate, $this->network);
         } else {
-            return new TransactionBuilder($this->network->get_dust_limit(), $this->network->get_default_fee(), $this->network);
+            return new TransactionBuilder($this->network->get("dust_limit"), $this->network->get("default_fee"), $this->network);
         }
     }
 

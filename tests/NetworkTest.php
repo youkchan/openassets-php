@@ -12,8 +12,8 @@ class NetworkTest extends TestCase
     }
 
     public function test_change_network() {
-        //$previous_network_name_check = "MonacoinTestnet";
-        $previous_network_name_check = "LitecoinTestnet";
+        $previous_network_name_check = "MonacoinTestnet";
+        //$previous_network_name_check = "LitecoinTestnet";
         $current_network_name_check = "Monacoin";
         $previous_network_array = explode("\\", get_class($this->network->get_bclib_network()));
         $this->assertSame(end($previous_network_array),$previous_network_name_check);
@@ -27,6 +27,13 @@ class NetworkTest extends TestCase
     public function test_get_p2pkh_address_prefix() {
         $result = $this->network->get_p2pkh_address_prefix();
         $this->assertSame("6f", $result);
+    }
+
+    public function test_initialize() {
+        $this->network = new Network([
+            "max_confirmation" => 50000,
+        ]);
+        var_dump($this->network->get("max_confirmation"));
     }
 
 }

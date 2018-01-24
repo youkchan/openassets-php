@@ -11,7 +11,7 @@ class Network
 
     private $bclib_network; //Bitcoin Library
 
-    private $default_network_name = "litecoinTestnet";
+    private $default_network_name = "monacoinTestnet";
 
     private $network;
 
@@ -47,32 +47,20 @@ class Network
 
     }
 
+    public function set($var , $value) {
+        $this->network->set($var, $value);
+    }
+
+    public function get($var) {
+        return $this->network->get($var);
+    }
+
     public function get_bclib_network() {
         return $this->bclib_network;
     }
 
-    public function get_min_confirmation() {
-        return $this->network->get_min_confirmation();
-    }
-
-    public function get_max_confirmation() {
-        return $this->network->get_max_confirmation();
-    }
-
-    public function get_timeout() {
-        return $this->network->get_timeout();
-    }
-
     public function get_server_url() {
         return $this->network->get_server_url();
-    }
-
-    public function get_dust_limit() {
-        return $this->network->get_dust_limit();
-    }
-
-    public function get_default_fee() {
-        return $this->network->get_default_fee();
     }
 
     public function change_network($network) {
@@ -82,7 +70,6 @@ class Network
         Bitcoin::setNetwork(NetworkFactory::$network());
         $this->bclib_network = Bitcoin::getNetwork();
     }
-
 
     public function get_p2pkh_address_prefix() {
         return $this->bclib_network->getAddressByte();

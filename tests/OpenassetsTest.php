@@ -12,9 +12,15 @@ class OpenassetsTest extends TestCase
     public function setUp(){
         $params = array(
          //   "network" =>"monacoinTestnet", 
+              "rpc_user" => "mona",
+              "rpc_password" => "mona",
         );
         $this->openassets = new Openassets($params); 
         $this->coin_name = get_run_coin_name();
+        ini_set('xdebug.var_display_max_children', -1);
+        ini_set('xdebug.var_display_max_data', -1);
+        ini_set('xdebug.var_display_max_depth', -1);
+
     }
  
     public function test_list_unspent(){
@@ -22,9 +28,10 @@ class OpenassetsTest extends TestCase
         if ($this->coin_name == "litecoin") {
             $result = $this->openassets->list_unspent(["bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA"]);
         }
-      //  else if ($this->coin_name == "monacoin") {
-      //      $result = $this->openassets->list_unspent(["b6NdFLNHmvbMafTrdRKuoKDnTnVuesayKj6"]);
-      //  }
+        else if ($this->coin_name == "monacoin") {
+            //$result = $this->openassets->list_unspent(["b6NdFLNHmvbMafTrdRKuoKDnTnVuesayKj6"]);
+            $result = $this->openassets->list_unspent();
+        }
         else {
             $this->fail("node not run.");
         }
@@ -37,6 +44,8 @@ class OpenassetsTest extends TestCase
 
     public function test_get_balance() {
         $result = $this->openassets->get_balance();
+var_dump($result);
+
     }
 
     public function test_issue_asset() {

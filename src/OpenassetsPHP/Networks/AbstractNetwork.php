@@ -15,11 +15,12 @@ class AbstractNetwork
     protected $max_confirmation = 9999999;
     protected $rpc_host = "localhost";
     protected $rpc_port;
-    protected $rpc_user;
-    protected $rpc_password;
+    protected $rpc_user = "rpc";
+    protected $rpc_password = "rpc";
     protected $rpc_wallet;
     protected $rpc_schema = "http";
     protected $rpc_timeout = 60;
+
 
     public function set($var , $value) {
         if (property_exists($this, $var)) {
@@ -29,25 +30,14 @@ class AbstractNetwork
         }
     }
 
-    public function get_max_confirmation() {
-        return $this->max_confirmation;
+    public function get($var) {
+        if (property_exists($this, $var)) {
+            return $this->$var;
+        } else {
+            throw new Exception(" cannot get property : " . $$var );
+        }
     }
 
-    public function get_min_confirmation() {
-        return $this->min_confirmation;
-    }
-
-    public function get_timeout() {
-        return $this->rpc_timeout;
-    }
-
-    public function get_dust_limit() {
-        return $this->dust_limit;
-    }
-
-    public function get_default_fee() {
-        return $this->default_fee;
-    }
     public function get_server_url() {
         $url = $this->rpc_schema . "://";
         $url .= $this->rpc_user . ":" . $this->rpc_password . "@";
