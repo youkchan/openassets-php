@@ -206,36 +206,36 @@ class Openassets
         return $colored_outputs;
     }
     /**
-     * @param transaction         : Mainchain$B$N(BUTXO($B0J2<(Btransaction$B$OA4$F(BUTXO)
-     * @param previous_outputs    : marker output$B$r4^$`(Btransaction$B$N(Binput(previous output)$B$+$i:n@.$7$?(BOaTransactionOutput
-     * @param marker_output_index : transaction$B$N$J$+$N(Boutput$B$G(Bmarker output$B$r4^$`(Boutput$B$N(Bindex
-     * @param asset_quantities    : marker output$B$K4^$^$l$k%"%;%C%H$N?t(B
+     * @param transaction         : MainchainのUTXO(以下transactionは全てUTXO)
+     * @param previous_outputs    : marker outputを含むtransactionのinput(previous output)から作成したOaTransactionOutput
+     * @param marker_output_index : transactionのなかのoutputでmarker outputを含むoutputのindex
+     * @param asset_quantities    : marker outputに含まれるアセットの数
      */
     public function compute_asset_ids ($previous_outputs, $marker_output_index, $transaction, $asset_quantities) {
         $outputs = $transaction->getOutputs();
 
-        //Marker output payload$B$,B8:_$7$F$$$k$N$G!"(Bcoinbase$B$G$O$J$$$7(B(previous_outputs$B$,B8:_$9$k(B)
-        //transaction$B$K4^$^$l$F$$$k(Bopenassets$BA`:n$N%H%i%s%6%/%7%g%s$N?t0J>e!"%"%;%C%H$N<oN`(B(count($asset_quantities))$B$,B8:_$9$k(B
+        //Marker output payloadが存在しているので、coinbaseではないし(previous_outputsが存在する)
+        //transactionに含まれているopenassets操作のトランザクションの数以上、アセットの種類(count($asset_quantities))が存在する
         if (count($asset_quantities) > count($outputs) - 1 || count($previous_outputs) == 0) {
             return null;
         }
         $result = array();
         $marker_output = $outputs[$marker_output_index];
-        //Maker output$B$r4^$`%H%i%s%6%/%7%g%s72$G0lHV:G=i$N%H%i%s%6%/%7%g%s$O(Basset issue$B$N%H%i%s%6%/%7%g%s(B
+        //Maker outputを含むトランザクション群で一番最初のトランザクションはasset issueのトランザクション
         $issuance_asset_id = Util::script_to_asset_id($previous_outputs[0]->get_script(), $this->network);
-        //marker output index$B$,(B1$B0J>e$N>l9g$=$l$O%"%;%C%H$NH/9T$r<($9(B
+        //marker output indexが1以上の場合それはアセットの発行を示す
         //issuance
         for ($i = 0 ; $i <= $marker_output_index -1 ; $i++) {
             $value = $outputs[$i]->getValue();
             $script = $outputs[$i]->getScript();
 
-            //$B%"%;%C%H?t$N<oN`$O(Bmarker output$B$h$jA0$N(Boutput$B?t$HF1$8(B
+            //アセット数の種類はmarker outputより前のoutput数と同じ
             if ($i < count($asset_quantities) && $asset_quantities[$i] > 0) {
                 $payload = MarkerOutput::parse_script($marker_output->getScript()->getBuffer());
                 $metadata = MarkerOutput::deserialize_payload($payload)->get_metadata();
 
 
-                //p2sh$B4XO"$O8=>uL$<BAu(B
+                //p2sh関連は現状未実装
                 $param = null;
                 if((is_null($metadata)  || strlen($metadata) == 0) && $previous_outputs[0]->get_script()->isP2SH($param) ) {
                     //$metadata = self::parse_issuance_p2sh_pointer($transaction-getInput(0)->getScript());
