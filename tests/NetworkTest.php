@@ -29,11 +29,17 @@ class NetworkTest extends TestCase
         $this->assertSame("6f", $result);
     }
 
+    public function test_get_server_url() {
+        $result = $this->network->get_server_url();
+        $this->assertSame("http://rpc:rpc@localhost:19402", $result);
+        
+    }
+
     public function test_initialize() {
-        $this->network = new Network([
+        $network = new Network([
             "max_confirmation" => 50000,
         ]);
-        var_dump($this->network->get("max_confirmation"));
+        var_dump($network->get("max_confirmation"));
     }
 
 }
