@@ -1,6 +1,8 @@
 <?php
 namespace youkchan\OpenassetsPHP\Cache;
 use youkchan\OpenassetsPHP\Cache\DBAccess;
+use youkchan\OpenassetsPHP\Protocol\OaTransactionOutput;
+use BitWasp\Bitcoin\Script\ScriptFactory;
 use Exception;
 
 class OutputCache extends DBAccess
@@ -17,7 +19,12 @@ class OutputCache extends DBAccess
         $stmt->bindValue(":transaction_id", $transaction_id);
         $stmt->bindValue(":index", $index);
         $result = $stmt->execute()->fetchArray();
-        return $result;
+        if (!$result) {
+            return null;
+        }
+
+        $output = new OaTransactionOutput($result["Value"], ScriptFactory::fromHex($result["Script"]), $result["AssetId"], $result["AssetQuantity"] ,$result["OutputType"],$result["Metadata"]);
+        return $output;
     }
    
     public function set($transaction_id, $index, $value, $script,$asset_id, $asset_quantity, $output_type, $metadata) {
@@ -31,7 +38,6 @@ class OutputCache extends DBAccess
         $stmt->bindValue(":asset_quantity", $asset_quantity);
         $stmt->bindValue(":output_type", $output_type);
         $stmt->bindValue(":metadata", $metadata);
-        $result = $stmt->execute();
-        return $result;
+        $stmt->execute();
     }
 }

@@ -8,6 +8,8 @@ use TheFox\Utilities\Leb128;
 use youkchan\OpenassetsPHP\Network;
 use BitWasp\Bitcoin\Crypto\Hash;
 use BitWasp\Bitcoin\Script\Classifier\OutputClassifier;
+use BitWasp\Bitcoin\Script\ScriptFactory;
+use BitWasp\Bitcoin\Script\Opcodes;
 use Exception;
 
 class Util
@@ -147,4 +149,5 @@ class Util
             return $address_creator->fromOutputScript($script)->getAddress();
         } 
     }
+
 }

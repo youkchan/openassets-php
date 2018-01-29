@@ -11,6 +11,8 @@ use youkchan\OpenassetsPHP\Transaction\TransferParameters;
 use youkchan\OpenassetsPHP\Transaction\TransactionBuilder;
 use youkchan\OpenassetsPHP\Transaction\OaOutPoint;
 use youkchan\OpenassetsPHP\Transaction\SpendableOutput;
+use youkchan\OpenassetsPHP\Cache\TransactionCache;
+use youkchan\OpenassetsPHP\Cache\OutputCache;
 use BitWasp\Buffertools\Buffer;
 use BitWasp\Bitcoin\Transaction\TransactionFactory;
 use BitWasp\Bitcoin\Script\Script;
@@ -20,6 +22,8 @@ class Openassets
 {
     private $network;
     private $provider;
+    private $transaction_cache = null;
+    private $output_cache = null;
 
     public function __construct($params = array()){
         if (empty($params)) {
@@ -28,6 +32,10 @@ class Openassets
             $this->network = new Network($params);
         }
         $this->provider = new Provider($this->network);
+        if (!is_null($this->network->get("cache"))) {
+            $this->transaction_cache = new TransactionCache($this->network->get("cache"));
+            $this->output_cache = new OutputCache($this->network->get("cache"));
+        }
     }
 
     public function get_network() {
@@ -162,7 +170,7 @@ class Openassets
 
     public function send_asset($from, $asset_id, $quantity, $to, $fee = null, $mode = "broadcast", $output_quantity = 1) {
         if (is_null($from) || is_null($quantity)) {
-            throw new Exception("the parameters from and quantity should not be null. ");
+            throw new Exception("the parameters from , asset_id and quantity should not be null. ");
         }
 
         $colored_outputs = self::get_unspent_outputs([Util::convert_oa_address_to_address($from)]);
@@ -174,9 +182,14 @@ class Openassets
     }
 
     public function get_output($txid, $vout) {
-        $decode_transaction = self::load_transaction($txid);
+        $cache = self::load_cached_output($txid, $vout);
+        if ($cache) {
+            return $cache;
+        }
+        $decode_transaction = self::load_cached_transaction($txid);
         $transaction = TransactionFactory::fromHex($decode_transaction);
         $colored_outputs = self::get_color_outputs_from_tx($transaction);
+        self::set_cached_output($txid, $colored_outputs);
         return $colored_outputs[$vout]; 
     }
 
@@ -310,6 +323,42 @@ class Openassets
             throw new Exception("txid : " . $txid ." could not be retrieved");
         }
         return $decode_transaction;
+    }
+
+    public function load_cached_transaction($tx_id) {
+        if (is_null($this->transaction_cache)) {
+            return self::load_transaction($tx_id);
+        }
+        $decode_transaction = $this->transaction_cache->get($tx_id);
+        if (is_null($decode_transaction)){
+            $decode_transaction = self::load_transaction($tx_id);
+            $this->transaction_cache->set($tx_id, $decode_transaction);
+        } 
+
+        return $decode_transaction;
+    }
+
+    public function load_cached_output($tx_id, $index) {
+        if(!is_null($this->output_cache)) {
+            $cache = $this->output_cache->get($tx_id, $index);
+            if (!is_null($cache)) {
+                return $cache;
+            } else {
+                return false;
+            }
+        } else { 
+            return false;
+        }
+    }
+
+    public function set_cached_output($tx_id, $outputs) {
+        if(!is_null($this->output_cache)) {
+            foreach ($outputs as $key => $output) {
+                $this->output_cache->set($tx_id, $key, $output->value, $output->get_script()->getHex(), $output->asset_id, $output->asset_quantity, $output->output_type, $output->metadata); 
+            }
+        } else {
+            return false;
+        }
     }
 
     public function create_transaction_builder() {
