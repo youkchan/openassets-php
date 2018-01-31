@@ -26,12 +26,12 @@ class UtilTest extends TestCase
         $result = Util::convert_address_to_oa_address($address);
         $this->assertSame($result,$address_comp);
     }
-    public function test_script_to_asset_id() {
+    /*public function test_script_to_asset_id() {
         $script = new Script(Buffer::hex("76a914e7d9217ed5a17650403bb8f8d59ef442198ad69a88ac"));
         $hashed_comp = "odouUF3zqWNyAQdeR4JzJ3sQDSAaqZQZRd";
         $result =  Util::script_to_asset_id($script, $this->network);
         $this->assertEquals($result, $hashed_comp);
-    }
+    }*/
 
     public function test_validate_addresses() {
         //$address_list = ['MCfN6CUST7TtoDhGNhocfMstStjUr8SFNT'];
@@ -50,5 +50,17 @@ class UtilTest extends TestCase
         $result = Util::decode_leb128('e58e26');
         $this->assertEquals(624485, $result[0]);
     }
+
+    public function test_encode_leb128() {
+        $result = Util::encode_leb128(624485);
+        $this->assertEquals("e58e26", $result[1]);
+    }
+
+    /*public function test_script_to_asset_id() {
+        $script = new Script(Buffer::hex("76a9148097e7d5b60d62cb72e34f6ee45270c2effdd06088ac"));
+        $asset_id = "AWzyxBBnU9FUx3wASKcVvGpNUbzfVEQdg3";
+        $result = Util::script_to_asset_id($script, $this->network);
+        $this->assertEquals($result, $asset_id);
+    }*/
 
 }

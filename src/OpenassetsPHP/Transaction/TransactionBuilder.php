@@ -116,7 +116,6 @@ class TransactionBuilder
     }
 
     public function transfer_asset($asset_id, $asset_transfer_spec, $coin_change_script, $fee) {
-//var_dump($coin_change_script);
         $coin_transfer_spec = new TransferParameters($asset_transfer_spec->unspent_outputs, null, Util::convert_oa_address_to_address($coin_change_script), 0, 1, $this->network->get_bclib_network());
         return $this->transfer([[$asset_id, $asset_transfer_spec]], [$coin_transfer_spec], $fee);
     }
@@ -127,7 +126,6 @@ class TransactionBuilder
         $asset_quantities = [];
         //Only when assets are transfered
         $asset_based_specs = [];
-//var_dump($asset_transfer_specs);
         foreach($asset_transfer_specs as $spec) {
             $asset_id = $spec[0];
             $transfer_spec = $spec[1];
