@@ -102,7 +102,7 @@ class MarkerOutput
         }
     }
 
-    private static function parse_asset_quantity($payload)
+    public static function parse_asset_quantity($payload)
     {
         $buffer = Buffer::hex($payload);
         switch ($buffer->slice(0,1)->getHex()) {

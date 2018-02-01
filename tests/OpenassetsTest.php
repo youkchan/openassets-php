@@ -6,7 +6,9 @@ use youkchan\OpenassetsPHP\Provider;
 use youkchan\OpenassetsPHP\Cache\OutputCache;
 use youkchan\OpenassetsPHP\Protocol\OutputType;
 use youkchan\OpenassetsPHP\Protocol\OaTransactionOutput;
+use youkchan\OpenassetsPHP\Protocol\MarkerOutput;
 use BitWasp\Bitcoin\Base58;
+use BitWasp\Buffertools\Buffer;
 use BitWasp\Bitcoin\Script\Opcodes;
 use BitWasp\Bitcoin\Script\ScriptFactory;
 require_once "Bootstrap.php";
@@ -42,7 +44,7 @@ class OpenassetsTest extends TestCase
         ini_set('xdebug.var_display_max_data', -1);
         ini_set('xdebug.var_display_max_depth', -1);
 
-        $this->issue_send_flag = true;  //if this flag is true, "issue" and "send" test method run.
+        $this->issue_send_flag = false;  //if this flag is true, "issue" and "send" test method run.
 
     }
  
@@ -79,6 +81,11 @@ class OpenassetsTest extends TestCase
           
         }
         else if ($this->coin_name == "monacointestnet") {
+            $oa_address = "bXBXT8hhgkRcWCKhyQdwfeRC4x2LaYkXAHP";
+            $result = $this->openassets->get_balance($oa_address);
+            $result_comp_value = 0.99951200;
+            $result_comp_account = "";
+
         }
         else {
             $this->fail("node not run.");
@@ -131,10 +138,9 @@ class OpenassetsTest extends TestCase
 
             $balance_before_issuance = $this->openassets->get_balance($oa_address); //get balance before issuance.
             $value_before_issuance = $balance_before_issuance[$address]["value"];
-
-            //$result = $this->openassets->issue_asset("bWsBt9fB4fuys6yDeKyhT8HZRdCd1TSjJQQ",100, "u=https://test.co.jp",null ,50000);
-            $tx_id = "625e172a0916201767bfc5d4b511809607b9c2ce7a8d5e8a66bfe393e72a8d40";
+            $tx_id = $this->openassets->issue_asset("bWsBt9fB4fuys6yDeKyhT8HZRdCd1TSjJQQ",100, "u=https://test.co.jp",null ,50000);
             $transaction = $this->provider->get_transaction($tx_id, 1);
+
             $outputs = $transaction->vout;
             $issue_output = $outputs[0];
             $marker_output = $outputs[1];
@@ -145,15 +151,21 @@ class OpenassetsTest extends TestCase
             $script_pubkey = ScriptFactory::sequence([Opcodes::OP_DUP, Opcodes::OP_HASH160, $hash, Opcodes::OP_EQUALVERIFY, Opcodes::OP_CHECKSIG]);
             $this->assertEquals($script_pubkey->getHex() ,$issue_output->scriptPubKey->hex);
 
-var_dump($marker_output);
-//var_dump($transaction);
+            $this->assertEquals(0 ,$marker_output->value);
+
+            $asset_list = MarkerOutput::deserialize_payload(MarkerOutput::parse_script(Buffer::hex($marker_output->scriptPubKey->hex)));
+            $this->assertEquals($asset_list->get_metadata(),$metadata);
+            $this->assertEquals($asset_list->get_asset_quantities()[0],$issue_quantity);
+           
+            $value_after_issuance = $value_before_issuance - $dust_limit - $fee;
+            $this->assertLessThan($value_after_issuance ,Util::coin_to_satoshi($rest_output->value));
+            $this->assertEquals($script_pubkey->getHex() ,$rest_output->scriptPubKey->hex);
         }
         else if ($this->coin_name == "monacointestnet") {
         }
         else {
             $this->fail("node not run.");
         }
-        //$result = $this->openassets->issue_asset("bWy1zdjy9Le6u9E9GBxfXviKqnparoNZRWA",100);
     }
 
     public function test_send_asset() {
@@ -179,6 +191,7 @@ var_dump($marker_output);
         if ($this->coin_name == "litecointestnet") {
         }
         else if ($this->coin_name == "monacointestnet") {
+            $transaction_id ="f23407472e1f90a91d9473c9076dc8f3d6b6748290775a125388062b366766cf";
             $result_serialized_transaction_comp ="0200000005bcb108539057c6e8d83e811354269e1ed3ba39a0d10c5f8e35590fda7be6fba4000000006a47304402207395f0ee5489565b097f04204e2b147e71b4380c4e470f8e23a40a98e86905dc0220710774e1162bc08b2bfbed98c66bc70b26009104078efd77a769c7197502e8ed012103a31a542ddf0e9b829d47b8a9d19d1346430416eab2fbdc55b5074b777c335a74feffffffb8b84d72bfa3c07ebbfbc3af582408f90ceaacf0bd1efacc760696e2d5b6c27d000000006b483045022100c3f6f4316a592fd4dff30ae0110de69c83042ff5793addf2cb3d6145f7e283f802202324159b2d88dc115837f2d8ae4c615e02fce4dd75c6553a88a461b6fad40cec012103a31a542ddf0e9b829d47b8a9d19d1346430416eab2fbdc55b5074b777c335a74feffffff7c2845ab043881b3097d44c87b4cbde79b1db80171184512c2089643782bc2d7000000006b483045022100b62102737b0b44f6de33de5c1aaf101ede0542e4ffeda8cfa931f5b493ef63d702205b3e2be6737fe21bb211c21c9dd63c66dc9e9243ff245478a4257b0f8b2ef8db012103a31a542ddf0e9b829d47b8a9d19d1346430416eab2fbdc55b5074b777c335a74feffffff44751ea1d8938cb99d14a83550f5054cdcff836318c9b597188da53d471c9b42000000006b48304502210080a097aaa5e8efb6a756996986ec88ca18157530a80ac9d5cb8eb91d4f9dc7160220536abfaee20f90ee7a1972fbb55f426b49593b131da5baaa56f8c8ea70b031c3012103a31a542ddf0e9b829d47b8a9d19d1346430416eab2fbdc55b5074b777c335a74feffffff993e12c9223fa08f968debfe4cb634f1b2de9093822ee0a3e0024a0ef762eb4e010000006b483045022100b33e7c30702b211dcb5ab1129a64e7715457597768ce88c60e98b3b81b641165022008d8a36bc078badd2948f6c709bf418bd10c19152e77bd42acaed76902a765680121021378979d553a0573709a6ca7721547c0ab58c41b6ac2fba18166092e7711426dfeffffff02a0443423000000001976a914916016b332cd05dd041d8995da4796561249679c88acc0a5bb29050000001976a914cb5cde5d340d498c3be4533891173ec052878ab788ac64400200";
             $params = array(
                   "cache" => null,

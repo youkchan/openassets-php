@@ -32,6 +32,8 @@ class TransactionBuilder
         $uncolored_outputs = self::collect_uncolored_outputs($issue_spec->unspent_outputs, $this->amount * 2 + $fee);
         $inputs = $uncolored_outputs[0];
         $total_amount = $uncolored_outputs[1];
+
+        $transaction = TransactionFactory::build();
         foreach ($inputs as $input) {
             $transaction->spendOutPoint($input->out_point(), $input->output()->get_script());
         }

@@ -8,7 +8,7 @@ function get_run_coin_name(){
     foreach ($ps as $item) {
         if(strpos($item, "./litecoind -testnet")) {
             $run_coin_name = "litecointestnet";
-        }else if(strpos($item, "./monacoin -testnet")) {
+        }else if(strpos($item, "./monacoind -testnet")) {
             $run_coin_name = "monacointestnet";
         }
     }
