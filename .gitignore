@@ -2,5 +2,5 @@ vendor/
 composer.lock
 composer.phar
 test.db
-tests/cache.db
-tests/cache_test.db
+/tests/cache.db
+/tests/cache_test.db
