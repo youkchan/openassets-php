@@ -181,6 +181,18 @@ class Openassets
         return $transaction_id;
     }
 
+    public function send_coin($from, $amount, $to, $fee = null, $mode ="broadcast", $output_quantity = 1){
+        
+        Util::validate_addresses([$from, $to], $this->network->get_bclib_network());
+        $colored_outputs = self::get_unspent_outputs([$from]);
+        $coin_transfer_spec = new TransferParameters($colored_outputs, $to, $from, $amount, $output_quantity, $this->network->get_bclib_network());
+        $transaction_builder = self::create_transaction_builder();
+        $transaction = $transaction_builder->transfer_coin($coin_transfer_spec, $fee);
+        $transaction_id = self::process_transaction($transaction);
+        return $transaction_id;
+
+    } 
+
     public function get_output($txid, $vout) {
         $cache = self::load_cached_output($txid, $vout);
         if ($cache) {

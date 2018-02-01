@@ -122,6 +122,15 @@ class TransactionBuilder
         return $this->transfer([[$asset_id, $asset_transfer_spec]], [$coin_transfer_spec], $fee);
     }
 
+    public function transfer_coin($coin_transfer_spec, $fee) {
+        return self::transfer_coins([$coin_transfer_spec], $fee);
+    }
+
+
+    public function transfer_coins($coin_transfer_specs, $fee) {
+        return self::transfer([],$coin_transfer_specs, $fee);
+    }
+
     public function transfer($asset_transfer_specs, $coin_transfer_specs, $fee) {
         $inputs = []; //vin
         $outputs = []; //vout

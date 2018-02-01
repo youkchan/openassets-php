@@ -158,7 +158,7 @@ class OpenassetsTest extends TestCase
             $this->assertEquals($asset_list->get_asset_quantities()[0],$issue_quantity);
            
             $value_after_issuance = $value_before_issuance - $dust_limit - $fee;
-            $this->assertLessThan($value_after_issuance ,Util::coin_to_satoshi($rest_output->value));
+            $this->assertLessThanOrEqual($value_after_issuance ,Util::coin_to_satoshi($rest_output->value));
             $this->assertEquals($script_pubkey->getHex() ,$rest_output->scriptPubKey->hex);
         }
         else if ($this->coin_name == "monacointestnet") {
@@ -346,6 +346,38 @@ class OpenassetsTest extends TestCase
         return $this->openassets->parse_issuance_p2sh_pointer($te);
         
     }*/
+
+
+    public function test_send_coin() {
+        $result = array();
+        if ($this->coin_name == "litecointestnet") {
+            $from = "mtpnMm5zgha7kmbBixH3DkUzMwKscvQ2vZ";
+            $oa_address = Util::convert_address_to_oa_address($from);
+            $to = "mhDzuVMjCS6BEj4HHMbGURerHbSqXhiFZC";
+            $amount = 1000;
+            $fee = 50000;
+            $balance_before_issuance = $this->openassets->get_balance($oa_address); //get balance before issuance.
+            $value_before_issuance = $balance_before_issuance[$from]["value"];
+
+            $transaction_id = $this->openassets->send_coin($from, $amount, $to, $fee);
+            $transaction = $this->provider->get_transaction($transaction_id, 1);
+
+            $outputs = $transaction->vout;
+            $output_to_myself = $outputs[0];
+            $output_to = $outputs[1];
+
+            $value_after_issuance = $value_before_issuance - $amount - $fee;
+            $this->assertLessThanOrEqual($value_after_issuance ,Util::coin_to_satoshi($output_to_myself->value));
+            $this->assertEquals($amount ,Util::coin_to_satoshi($output_to->value));
+
+        }
+        else if ($this->coin_name == "monacointestnet") {
+        }
+        else {
+            $this->fail("node not run.");
+        }
+
+            }
 
     public function test_create_transaction_builder() {
 //        $this->openassets->create_transaction_builder();
