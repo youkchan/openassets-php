@@ -45,7 +45,7 @@ class Util
             try {
                 $address_creator->fromString($address, $network);
             } catch (Exception $e){
-                throw new Exception($address . " is invalid bitcoin address" );
+                throw new Exception($address . " is invalid coin address" );
             }    
         }
     }
@@ -56,7 +56,7 @@ class Util
             try {
                 $address_list[] = self::convert_oa_address_to_address($oa_address);
             } catch (Exception $e){
-                throw new Exception($oa_address . " is invalid bitcoin address" );
+                throw new Exception($oa_address . " is invalid openasset address" );
             }    
         }
         self::validate_addresses($address_list, $network);
