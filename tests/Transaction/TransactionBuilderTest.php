@@ -3,6 +3,7 @@ namespace youkchan\OpenassetsPHP\Tests\Transaction;
 use PHPUnit\Framework\TestCase;
 use youkchan\OpenassetsPHP\Network;
 use youkchan\OpenassetsPHP\Transaction\TransactionBuilder;
+use youkchan\OpenassetsPHP\Protocol\MarkerOutput;
 use BitWasp\Bitcoin\Base58;
 use BitWasp\Bitcoin\Address\PayToPubKeyHashAddress;
 use BitWasp\Bitcoin\Transaction\TransactionOutput;
@@ -37,6 +38,16 @@ class TransactionBuilderTest extends TestCase
 
         $result = $this->transaction_builder->create_colored_output($address);
         $this->assertEquals($result, $comp_result);
+    }
+
+    public function test_get_marker_output() {
+        $asset_quantities = [300, 400];
+        $metadata = "u=http://test.co.jp";
+        $result = $this->transaction_builder->get_marker_output($asset_quantities, $metadata);
+        $marker_output = MarkerOutput::deserialize_payload(MarkerOutput::parse_script($result->getScript()->getBuffer()));
+        $this->assertArraySubset($asset_quantities,$marker_output->get_asset_quantities());
+        $this->assertEquals($metadata, $marker_output->get_metadata());
+        
     }
 
 }

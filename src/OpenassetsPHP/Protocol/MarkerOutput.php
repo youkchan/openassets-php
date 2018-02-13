@@ -67,16 +67,22 @@ class MarkerOutput
 
         $payload = substr($payload, strlen(self::OAP_MARKER.self::VERSION));
         $parsed_asset_quantity = self::parse_asset_quantity($payload);
+var_dump($parsed_asset_quantity);
         $asset_quantity = $parsed_asset_quantity[0];
         $payload = $parsed_asset_quantity[1];
+var_dump($payload);
         $base = null;
         foreach(str_split($payload, 2) as $byte) {
+var_dump($byte);
             $base .= Buffer::hex($byte)->getInt() >= 128 ? $byte : $byte.'|';
         }
+var_dump($base);
 
         $base = substr($base, 0, -1);
+var_dump($base);
         $data = explode('|', $base);
         $list = implode(array_slice($data, 0, $asset_quantity));
+var_dump($list);
         $asset_quantities = Util::decode_leb128($list);
         $metaHex = Buffer::hex($payload)->slice(Buffer::hex($list)->getSize() + 1);
         $metadata = empty($metaHex) ? NULL : $metaHex->getBinary();

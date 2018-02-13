@@ -46,6 +46,29 @@ class UtilTest extends TestCase
 
     }
 
+    public function test_validate_oa_addresses() {
+        //$address_list = ['MCfN6CUST7TtoDhGNhocfMstStjUr8SFNT'];
+        //$address_list = ['mzi2Dbx1Q9gdFHhJga2rEhyMaUT5QuMrk3'];
+        //$address_list = ['3EktnHQD7RiAE6uzMj2ZifT9YgRrkSgzQX'];
+        $oa_address_list = ['bXCcjk3wL8GAtkeoxzzcVj2nfSAN6XCtYEK'];
+        try {
+            Util::validate_oa_addresses($oa_address_list , $this->network->get_bclib_network());
+        } catch(Exception $e) {
+            $this->fail($e->getMessage());
+        }
+        $this->assertTrue(true);
+        
+        $false_address_list = ['MCfN6CUST7TtoDhGNhocfMstStjUr8SFNT'];
+        try {
+            Util::validate_oa_addresses($false_address_list , $this->network->get_bclib_network());
+            $this->assertTrue(false); //if error doesnt occur, it fails.
+        } catch(Exception $e) {
+            $this->assertTrue(true);
+        }
+
+
+    }
+
     public function test_decode_leb128() {
         $result = Util::decode_leb128('e58e26');
         $this->assertEquals(624485, $result[0]);

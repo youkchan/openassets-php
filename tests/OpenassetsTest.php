@@ -59,7 +59,6 @@ class OpenassetsTest extends TestCase
         else {
             $this->fail("node not run.");
         }
-
         $this->assertTrue(!empty($result));
         foreach ($result as $item) {
             $this->assertTrue(is_object($item));
@@ -349,6 +348,9 @@ class OpenassetsTest extends TestCase
 
 
     public function test_send_coin() {
+        if (!$this->issue_send_flag) {
+           return true;
+        }
         $result = array();
         if ($this->coin_name == "litecointestnet") {
             $from = "mtpnMm5zgha7kmbBixH3DkUzMwKscvQ2vZ";

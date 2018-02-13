@@ -50,6 +50,18 @@ class Util
         }
     }
 
+    public static function validate_oa_addresses($oa_address_list, $network) {
+        $address_list = [];
+        foreach ($oa_address_list as $oa_address) {
+            try {
+                $address_list[] = self::convert_oa_address_to_address($oa_address);
+            } catch (Exception $e){
+                throw new Exception($oa_address . " is invalid bitcoin address" );
+            }    
+        }
+        self::validate_addresses($address_list, $network);
+    }
+
     public static function encode_leb128($x)
     {
         if ($x < 0) {

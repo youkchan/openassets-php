@@ -15,12 +15,19 @@ class TransactionBuilder
     public $amount;
     public $estimated_fee_rate;
     public $network;
+    private $issuances = []; //refactoring param
 
     public function __construct($amount = 600, $estimated_fee_rate = 10000, $network)
     {
         $this->amount = $amount;
         $this->estimated_fee_rate = $estimated_fee_rate;
         $this->network = $network;
+    }
+
+    //refactoring method
+    public function add_coins($coins) {
+        foreach ($coins as $coin) {
+        }
     }
 
     public function issue_asset(TransferParameters $issue_spec, $metadata, $fee = null) {
