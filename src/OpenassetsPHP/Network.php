@@ -16,11 +16,8 @@ class Network
     private $network;
 
     private $network_list = array(
-        "bitcoin",
-        "bitcoinTestnet",
         "monacoin",
         "monacoinTestnet",
-        "litecoin",
         "litecoinTestnet"
     );
 
