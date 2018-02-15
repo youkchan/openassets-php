@@ -226,7 +226,7 @@ class Openassets
  
         $colored_outputs = array();
         foreach ($transaction->getOutputs() as $output) {
-            $colored_outputs[] = new OaTransactionOutput($output->getValue(), $output->getScript(), null, 0 ,OutputType::UNCOLORED);
+            $colored_outputs[] = new OaTransactionOutput($output->getValue(), $output->getScript(), null, 0 ,OutputType::UNCOLORED, null, $this->network);
         }
         return $colored_outputs;
     }
@@ -269,20 +269,20 @@ class Openassets
                 if (is_null($metadata)) {
                     $metadata = "";
                 }
-                $output = new OaTransactionOutput($value, $script, $issuance_asset_id, $asset_quantities[$i] ,OutputType::ISSUANCE, $metadata);
+                $output = new OaTransactionOutput($value, $script, $issuance_asset_id, $asset_quantities[$i] ,OutputType::ISSUANCE, $metadata, $this->network);
             } else {
-                $output = new OaTransactionOutput($value, $script, null, 0 ,OutputType::ISSUANCE);
+                $output = new OaTransactionOutput($value, $script, null, 0 ,OutputType::ISSUANCE, null , $this->network );
             }
             $result[] = $output;
         }
-        $result[] = new OaTransactionOutput($marker_output->getValue(), $marker_output->getScript(), null, 0 ,OutputType::MARKER_OUTPUT);
+        $result[] = new OaTransactionOutput($marker_output->getValue(), $marker_output->getScript(), null, 0 ,OutputType::MARKER_OUTPUT, null, $this->network);
 
         $remove_outputs = array();
         for ($i = $marker_output_index + 1; $i <= count($outputs) - 1; $i++) {
             $marker_output_payload = MarkerOutput::parse_script($outputs[$i]->getScript()->getBuffer());
             if (!is_null($marker_output_payload)) {
                 $remove_outputs[] = $outputs[$i];
-                $result[] = new OaTransactionOutput($outputs[$i]->getValue(), $outputs[$i]->getScript(), null, 0 ,OutputType::MARKER_OUTPUT);
+                $result[] = new OaTransactionOutput($outputs[$i]->getValue(), $outputs[$i]->getScript(), null, 0 ,OutputType::MARKER_OUTPUT, null, $this->network);
             }       
         }
         
@@ -323,7 +323,7 @@ class Openassets
                     }
                 }
             }
-            $result[] = new OaTransactionOutput($outputs[$i]->getValue(), $outputs[$i]->getScript(), $asset_id , $output_asset_quantity ,OutputType::TRANSFER, $metadata);
+            $result[] = new OaTransactionOutput($outputs[$i]->getValue(), $outputs[$i]->getScript(), $asset_id , $output_asset_quantity ,OutputType::TRANSFER, $metadata, null);
         }
         return $result;
          
