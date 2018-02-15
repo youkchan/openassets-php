@@ -323,7 +323,7 @@ class Openassets
                     }
                 }
             }
-            $result[] = new OaTransactionOutput($outputs[$i]->getValue(), $outputs[$i]->getScript(), $asset_id , $output_asset_quantity ,OutputType::TRANSFER, $metadata, null);
+            $result[] = new OaTransactionOutput($outputs[$i]->getValue(), $outputs[$i]->getScript(), $asset_id , $output_asset_quantity ,OutputType::TRANSFER, $metadata, $this->network);
         }
         return $result;
          
