@@ -24,4 +24,18 @@ class OutputType
             return false;
         }
     }
+
+    public static function output_type_label($type) {
+     if ($type == self::UNCOLORED) {
+            return "uncolored";
+        } elseif ($type == self::MARKER_OUTPUT) {
+            return "marker";
+        } elseif ($type == self::ISSUANCE) {
+            return "issuance";
+        } elseif ($type == self::TRANSFER) {
+            return "transfer";
+        } else {
+            return "uncolored";
+        }
+    }
 }

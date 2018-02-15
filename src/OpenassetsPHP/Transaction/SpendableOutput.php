@@ -35,5 +35,26 @@ class SpendableOutput
     {
         return new OutPoint(Buffer::hex($this->oa_out_point->hash), $this->oa_out_point->index);
     }
+
+    public function to_hash()
+    {
+        if ($this->oa_out_point == null) {
+            return [];
+        }
+        $hash = [
+            "txid" => $this->oa_out_point->hash,
+            "vout" => $this->oa_out_point->index,
+            "confirmations" => $this->confirmations,
+        ];
+
+        if($this->solvable) {
+            $hash["solvable"] = $this->solvable;
+        }
+        if($this->spendable) {
+            $hash["spendable"] = $this->spendable;
+        }
+
+        return array_merge($this->output->to_hash(), $hash);
+    }
   
 }

@@ -1,11 +1,14 @@
 <?php
 namespace youkchan\OpenassetsPHP\Protocol;
 use BitWasp\Bitcoin\Script\ScriptFactory;
+use youkchan\OpenassetsPHP\Util;
 use youkchan\OpenassetsPHP\Protocol\OutputType;
 use youkchan\OpenassetsPHP\Protocol\MarkerOutput;
 use youkchan\OpenassetsPHP\Protocol\AssetDefinition;
 use youkchan\OpenassetsPHP\Protocol\AssetDefinitionLoader;
+use BitWasp\Bitcoin\Script\Classifier\OutputClassifier;
 use BitWasp\Bitcoin\Script\Script;
+use BitWasp\Bitcoin\Amount;
 use Exception;
 
 
@@ -20,8 +23,9 @@ class OaTransactionOutput
     public $metadata;
     public $asset_definition_url;
     public $asset_definition;
+    public $network;
     
-    public function __construct($value, Script $script, $asset_id = null, $asset_quantity = 0, $output_type = OutputType::UNCOLORED, $metadata = null)
+    public function __construct($value, Script $script, $asset_id = null, $asset_quantity = 0, $output_type = OutputType::UNCOLORED, $metadata = null, $network = null)
     {
         if (!OutputType::isLabel($output_type)) {
             throw new Exception ('invalid output type');
@@ -37,6 +41,7 @@ class OaTransactionOutput
         $this->output_type = $output_type;
         $this->metadata = $metadata;
         $this->get_load_asset_definition_url();
+        $this->network = $network;
     }
 
     public function get_asset_amount() {
@@ -124,5 +129,52 @@ class OaTransactionOutput
     public function get_script()
     {
         return $this->script;
+    }
+
+    public function to_hash()
+    {
+        $amount = new Amount();
+        return [
+            "address" => $this->get_address(),
+            "oa_address" => $this->get_oa_address(),
+            "script" => $this->script->getBuffer()->getHex(),
+            "amount" => $amount->toBtc($this->value),
+            "asset_id" => $this->asset_id,
+            "asset_quantity" => $this->asset_quantity,
+            "asset_amount" => $this->get_asset_amount(),
+            "asset_definition_url" => $this->asset_definition_url,
+            "proof_of_authenticity" => $this->get_proof_of_authenticity(),
+            "output_type" => OutputType::output_type_label($this->output_type)
+        ];
+    }
+
+    public function get_address() {
+        $classifier = new OutputClassifier();
+        if ($classifier->isMultisig($this->script)) {
+            $handler = new Multisig($this->script);
+            foreach ($handler->getKeys() as $address) {
+                if($address == null) {
+                    return null;
+                }
+            }
+        }
+
+        return Util::script_to_address($this->script, $this->network->get_bclib_network());
+    }
+
+    public function get_oa_address() {
+        $address = $this->get_address();
+        if (is_null($address)) {
+            return null;
+        }
+
+        if (is_array($address)) {
+            $result = [];
+            foreach ($address as $item) {
+                $result[] = Util::convert_address_to_oa_address($item);
+            }
+            return $result;
+        }
+        return Util::convert_address_to_oa_address($address);
     }
 }
