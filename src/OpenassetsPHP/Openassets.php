@@ -354,6 +354,7 @@ class Openassets
         if(!is_null($this->output_cache)) {
             $cache = $this->output_cache->get($tx_id, $index);
             if (!is_null($cache)) {
+                $cache->network = $this->network;
                 return $cache;
             } else {
                 return false;

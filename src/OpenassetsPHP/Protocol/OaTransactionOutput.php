@@ -138,6 +138,7 @@ class OaTransactionOutput
             "address" => $this->get_address(),
             "oa_address" => $this->get_oa_address(),
             "script" => $this->script->getBuffer()->getHex(),
+            "script_type" => $this->script_type(),
             "amount" => $amount->toBtc($this->value),
             "asset_id" => $this->asset_id,
             "asset_quantity" => $this->asset_quantity,
@@ -176,5 +177,10 @@ class OaTransactionOutput
             return $result;
         }
         return Util::convert_address_to_oa_address($address);
+    }
+
+    public function script_type() {
+        $classifier = new OutputClassifier();
+        return $classifier->classify($this->script);
     }
 }

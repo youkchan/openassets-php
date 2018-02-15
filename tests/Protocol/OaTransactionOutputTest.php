@@ -40,6 +40,7 @@ class OaTransactionOutputTest extends TestCase
             $this->assertEquals($result["address"] , "mgphAvBFVKcbCA28aYjaPTtSCAQfuBhqYM");
             $this->assertEquals($result["oa_address"] , "bWrnaR5zaxoWH4QBVdAqm3Ko1XmaqycNi8h");
             $this->assertEquals($result["script"] , "76a9140e52fd303cd6d1434bd5cdbbc95dda5a05d2d3c988ac");
+            $this->assertEquals($result["script_type"] , "pubkeyhash");
             $this->assertEquals($result["amount"] , 0.000574);
             $this->assertEquals($result["asset_id"] , "oHhZWY665rNoSuqJ5pEMLSqzf3R1QPYLyp");
             $this->assertEquals($result["asset_quantity"] , 20);
