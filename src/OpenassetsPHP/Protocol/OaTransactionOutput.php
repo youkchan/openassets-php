@@ -54,7 +54,7 @@ class OaTransactionOutput
     }
 
     public function get_divisibility() {
-        if (!$this->valid_asset_definition() || is_null(!$this->assetdefinition->divisibility)) {
+        if (!$this->valid_asset_definition() || is_null(!$this->asset_definition->divisibility)) {
             return 0;
         }
         return $this->asset_definition->divibility;
