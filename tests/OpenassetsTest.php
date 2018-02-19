@@ -11,6 +11,7 @@ use BitWasp\Bitcoin\Base58;
 use BitWasp\Buffertools\Buffer;
 use BitWasp\Bitcoin\Script\Opcodes;
 use BitWasp\Bitcoin\Script\ScriptFactory;
+use BitWasp\Bitcoin\Transaction\TransactionFactory;
 require_once "Bootstrap.php";
 
 class OpenassetsTest extends TestCase
@@ -27,6 +28,7 @@ class OpenassetsTest extends TestCase
         if ($this->coin_name == "litecointestnet") {
             $params = array(
                     "network" =>"litecoinTestnet", 
+                  "cache" => false
             );
 
         }
@@ -51,7 +53,8 @@ class OpenassetsTest extends TestCase
     public function test_list_unspent(){
         $result = array();
         if ($this->coin_name == "litecointestnet") {
-            $result = $this->openassets->list_unspent(["bWrnaR5zaxoWH4QBVdAqm3Ko1XmaqycNi8h"]);
+            #$result = $this->openassets->list_unspent(["bWrnaR5zaxoWH4QBVdAqm3Ko1XmaqycNi8h"]);
+            $result = $this->openassets->list_unspent(["bX1doTmfwHTfpuNnBpALZaKuwgQjJTWdKow"]);
         }
         else if ($this->coin_name == "monacointestnet") {
             $result = $this->openassets->list_unspent(["bWuEUSQbcx5gKTXkr6mnzBWN37WSyLEaXQf"]);
@@ -61,9 +64,7 @@ class OpenassetsTest extends TestCase
         }
         $this->assertTrue(!empty($result));
         foreach ($result as $item) {
-            $this->assertTrue(is_object($item));
-            $object_list = explode("\\",get_class($item));
-            $this->assertEquals(end($object_list), "SpendableOutput");
+            $this->assertTrue(is_array($item));
         }
     }
 
@@ -383,6 +384,14 @@ class OpenassetsTest extends TestCase
 
     public function test_create_transaction_builder() {
 //        $this->openassets->create_transaction_builder();
+    }
+
+    public function test_get_color_outputs_from_tx() { 
+        //64c25a7f4c17aac23d032bebd8903ff06d0c8ce2087a350102c774336d8e82be 送付されたアセットトランザクション
+        $decode_transaction = $this->openassets->load_cached_transaction("64c25a7f4c17aac23d032bebd8903ff06d0c8ce2087a350102c774336d8e82be");
+        $transaction = TransactionFactory::fromHex($decode_transaction);
+        $colored_outputs = $this->openassets->get_color_outputs_from_tx($transaction);
+//var_dump($colored_outputs);
     }
 
 }

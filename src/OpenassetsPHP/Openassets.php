@@ -48,7 +48,11 @@ class Openassets
             $mona_address_list[] = Util::convert_oa_address_to_address($oa_address);
         }
         $outputs = $this->get_unspent_outputs($mona_address_list);
-        return $outputs;
+        $result = [];
+        foreach($outputs as $item) {
+           $result[] = $item->to_hash(); 
+        }
+        return $result;
     }
 
     public function get_balance($address = null) {
@@ -259,7 +263,6 @@ class Openassets
                 $payload = MarkerOutput::parse_script($marker_output->getScript()->getBuffer());
                 $metadata = MarkerOutput::deserialize_payload($payload)->get_metadata();
 
-
                 //p2sh関連は現状未実装
                 $param = null;
                 if((is_null($metadata)  || strlen($metadata) == 0) && $previous_outputs[0]->get_script()->isP2SH($param) ) {
@@ -315,7 +318,8 @@ class Openassets
                             $input_units_left -= $progress; 
                             if (is_null($asset_id)) {
                                 $asset_id = $current_input->get_asset_id();
-                                $metadata = $current_input->get_metadata_url();
+                                //$metadata = $current_input->get_metadata_url();
+                                $metadata = $current_input->get_metadata();
                             } else if ($asset_id != $current_input->get_asset_id()){
                                 return null;
                             }

@@ -57,7 +57,7 @@ class OaTransactionOutput
         if (!$this->valid_asset_definition() || is_null(!$this->asset_definition->divisibility)) {
             return 0;
         }
-        return $this->asset_definition->divibility;
+        return $this->asset_definition->divisibility;
     }
 
     public function get_proof_of_authenticity() {
@@ -82,6 +82,12 @@ class OaTransactionOutput
     {
         return $this->asset_quantity;
     }
+
+    public function get_metadata()
+    {
+       return $this->metadata; 
+    }
+
     public function get_metadata_url()
     {
         if ($this->metadata) {

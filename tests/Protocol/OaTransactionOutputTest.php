@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 use youkchan\OpenassetsPHP\Protocol\OaTransactionOutput;
 use youkchan\OpenassetsPHP\Protocol\OutputType;
 use youkchan\OpenassetsPHP\Openassets;
+use BitWasp\Bitcoin\Transaction\TransactionFactory;
 use BitWasp\Bitcoin\Script\Script;
 use BitWasp\Buffertools\Buffer;
 require_once "../Bootstrap.php";
@@ -17,6 +18,7 @@ class OaTransactionOutputTest extends TestCase
         if ($this->coin_name == "litecointestnet") {
             $params = array(
                     "network" =>"litecoinTestnet", 
+                    "cache" =>false,
             );
 
         }
@@ -28,6 +30,10 @@ class OaTransactionOutputTest extends TestCase
         }
 
         $this->openassets = new Openassets($params); 
+        ini_set('xdebug.var_display_max_children', -1);
+        ini_set('xdebug.var_display_max_data', -1);
+        ini_set('xdebug.var_display_max_depth', -1);
+
 
     }
 
@@ -56,6 +62,25 @@ class OaTransactionOutputTest extends TestCase
             $this->fail("node not run.");
         }
 
+    }
+
+    public function test_initialize() {
+        if ($this->coin_name == "litecointestnet") {
+            $decode_transaction = $this->openassets->load_cached_transaction("64c25a7f4c17aac23d032bebd8903ff06d0c8ce2087a350102c774336d8e82be");
+            $transaction = TransactionFactory::fromHex($decode_transaction);
+        $colored_outputs = $this->openassets->get_color_outputs_from_tx($transaction);
+//var_dump($transaction->getOutput(1));
+//var_dump($transaction);
+//var_dump($colored_outputs);
+            $output = new OaTransactionOutput(600 , $transaction->getOutput(1)->getScript(), "oTrSyX7oZKSournnQ46gkM2c3TXMqyYK3Q" , 20 ,OutputType::TRANSFER, "u=http://160.16.208.215/token_service_test/api/v1/asset/TEST2", $this->openassets->get_network());
+var_dump($output);
+
+        }
+        else if ($this->coin_name == "monacointestnet") {
+        }
+        else {
+            $this->fail("node not run.");
+        }
     }
 
 }
