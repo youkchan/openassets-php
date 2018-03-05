@@ -37,6 +37,13 @@ class OpenassetsTest extends TestCase
                   "rpc_user" => "mona",
                   "rpc_password" => "mona",
             );
+        } else {
+           $params = array(
+                  "network" =>"monacoin", 
+                  "rpc_user" => "mona",
+                  "rpc_password" => "mona",
+                  "rpc_port" => "9402",
+            );
         }
 
         $this->openassets = new Openassets($params); 
@@ -389,9 +396,11 @@ class OpenassetsTest extends TestCase
     public function test_get_color_outputs_from_tx() { 
         //64c25a7f4c17aac23d032bebd8903ff06d0c8ce2087a350102c774336d8e82be 送付されたアセットトランザクション
         $decode_transaction = $this->openassets->load_cached_transaction("64c25a7f4c17aac23d032bebd8903ff06d0c8ce2087a350102c774336d8e82be");
+//var_dump($this->openassets);
+//        $decode_transaction = $this->openassets->load_cached_transaction("85d7aaef776f9f6eb3086ccda511407504b96630038fa7d26a823b05be5ac886");
         $transaction = TransactionFactory::fromHex($decode_transaction);
         $colored_outputs = $this->openassets->get_color_outputs_from_tx($transaction);
-//var_dump($colored_outputs);
+var_dump($colored_outputs);
     }
 
 }

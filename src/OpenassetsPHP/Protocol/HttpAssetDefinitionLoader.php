@@ -22,6 +22,7 @@ class HttpAssetDefinitionLoader
             }
             $body = $response->getBody();
             $definition = AssetDefinition::parse_json($body);
+            $definition->asset_definition_url = $this->url;
         } catch (TransferException $e) {
             return null;
         }

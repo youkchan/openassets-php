@@ -33,10 +33,87 @@ class OaTransactionOutputTest extends TestCase
         ini_set('xdebug.var_display_max_children', -1);
         ini_set('xdebug.var_display_max_data', -1);
         ini_set('xdebug.var_display_max_depth', -1);
+        if ($this->coin_name == "litecointestnet") {
+            $decode_transaction = $this->openassets->load_cached_transaction("64c25a7f4c17aac23d032bebd8903ff06d0c8ce2087a350102c774336d8e82be");
+            $transaction = TransactionFactory::fromHex($decode_transaction);
+        $colored_outputs = $this->openassets->get_color_outputs_from_tx($transaction);
+//var_dump($transaction->getOutput(1));
+//var_dump($transaction);
+//var_dump($colored_outputs);
+            //$this->output = new OaTransactionOutput(600 , $transaction->getOutput(1)->getScript(), "oTrSyX7oZKSournnQ46gkM2c3TXMqyYK3Q" , 20 ,OutputType::TRANSFER, "u=http://160.16.208.215/token_service_test/api/v1/asset/TEST2", $this->openassets->get_network());
+//var_dump($output);
+
+        }
+        else if ($this->coin_name == "monacointestnet") {
+            $decode_transaction = $this->openassets->load_cached_transaction("80216fe600fd4cdd833e1ad747c6fa9fa490d7a30e60e31c97b8656d23db0665");
+            $transaction = TransactionFactory::fromHex($decode_transaction);
+            $colored_outputs = $this->openassets->get_color_outputs_from_tx($transaction);
+            $this->value = 600;
+            $this->script = $transaction->getOutput(1)->getScript();
+            $this->asset_id = "oTrSyX7oZKSournnQ46gkM2c3TXMqyYK3Q";
+            $this->asset_quantity = 100;
+            $this->output_type = OutputType::TRANSFER;
+            $this->metadata = "u=http://160.16.208.215/token_service_test/api/v1/asset/TEST2";
+            $this->output = new OaTransactionOutput($this->value , $this->script, $this->asset_id, $this->asset_quantity, $this->output_type, $this->metadata, $this->openassets->get_network());
+/*
+        $this->assertEquals($output->get_value(), $value);
+        $this->assertEquals($output->get_script(), $script);
+        $this->assertEquals($output->get_asset_id(), $asset_id);
+        $this->assertEquals($output->get_asset_quantity(), $asset_quantity);
+        $this->assertEquals($output->get_metadata(), $metadata);*/
+        }
+        else {
+            $this->fail("node not run.");
+        }
+    }
+
+    public function test_get_value() {
+        $this->assertEquals($this->output->get_value(), $this->value);
+    }
+
+    public function test_get_script() {
+        $this->assertEquals($this->output->get_script(), $this->script);
+    }
+
+    public function test_get_asset_id() {
+        $this->assertEquals($this->output->get_asset_id(), $this->asset_id);
+    }
+
+    public function test_get_asset_quantity() {
+        $this->assertEquals($this->output->get_asset_quantity(), $this->asset_quantity);
+    }
+
+    public function test_get_metadata() {
+        $this->assertEquals($this->output->get_metadata(), $this->metadata);
+    }
+
+    public function test_get_metadata_url() {
+        $this->assertEquals($this->output->get_metadata_url(), "http://160.16.208.215/token_service_test/api/v1/asset/TEST2");
+    }
+
+    public function test_get_load_asset_definition_url() {
+        $this->assertEquals($this->output->get_load_asset_definition_url(), "http://160.16.208.215/token_service_test/api/v1/asset/TEST2");
+    }
+
+    public function test_load_asset_definition(){
+        var_dump($this->output->load_asset_definition("http://160.16.208.215/token_service_test/api/v1/asset/TEST2"));
+    }
+
+    public function test_valid_asset_definition() {
+       $this->assertTrue($this->output->valid_asset_definition());
+       $output = $this->output;
+       $output->asset_id = "oWDNLde2LweGTgsVgtx6XcNNDZvm8kWnj1";
+       $this->assertFalse($output->valid_asset_definition());
+       $output->asset_definition = null;
+       $this->assertFalse($output->valid_asset_definition());
+       $output->asset_id = null;
+       $this->assertFalse($output->valid_asset_definition());
 
 
     }
 
+
+/*
     public function test_to_hash(){
         if ($this->coin_name == "litecointestnet") {
             $buffer = Buffer::hex("76a9140e52fd303cd6d1434bd5cdbbc95dda5a05d2d3c988ac");
@@ -63,24 +140,6 @@ class OaTransactionOutputTest extends TestCase
         }
 
     }
-
-    public function test_initialize() {
-        if ($this->coin_name == "litecointestnet") {
-            $decode_transaction = $this->openassets->load_cached_transaction("64c25a7f4c17aac23d032bebd8903ff06d0c8ce2087a350102c774336d8e82be");
-            $transaction = TransactionFactory::fromHex($decode_transaction);
-        $colored_outputs = $this->openassets->get_color_outputs_from_tx($transaction);
-//var_dump($transaction->getOutput(1));
-//var_dump($transaction);
-//var_dump($colored_outputs);
-            $output = new OaTransactionOutput(600 , $transaction->getOutput(1)->getScript(), "oTrSyX7oZKSournnQ46gkM2c3TXMqyYK3Q" , 20 ,OutputType::TRANSFER, "u=http://160.16.208.215/token_service_test/api/v1/asset/TEST2", $this->openassets->get_network());
-var_dump($output);
-
-        }
-        else if ($this->coin_name == "monacointestnet") {
-        }
-        else {
-            $this->fail("node not run.");
-        }
-    }
+*/
 
 }

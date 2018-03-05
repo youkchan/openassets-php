@@ -121,13 +121,13 @@ class OaTransactionOutput
     {
         if (is_null($this->asset_definition)){
             return false;
-        } 
+        }
         return $this->asset_definition->has_asset_id($this->asset_id);
     }
 
     public function load_asset_definition($url)
     {
-        $loader = new AssetDefinitionLoader($this->get_metadata_url());
+        $loader = new AssetDefinitionLoader($url);
         return $loader->load_definition();
     }
 
